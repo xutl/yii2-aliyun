@@ -14,7 +14,7 @@ use yii\base\InvalidConfigException;
 
 /**
  * Class BaseApi
- * @package xutl\api
+ * @package xutl\aliyun
  */
 class BaseApi extends Component
 {
@@ -103,6 +103,7 @@ class BaseApi extends Component
      */
     public function api($url, $method, array $params = [], array $headers = [])
     {
+
         try {
             return $this->sendRequest($method, $url, $params, $headers);
         } catch (\Exception $e) {
