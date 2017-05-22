@@ -4,12 +4,14 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace xutl\aliyun;
 
 use Yii;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\httpclient\Client;
+use yii\helpers\ArrayHelper;
 use yii\base\InvalidConfigException;
 
 /**
@@ -29,6 +31,22 @@ class BaseApi extends Component
     public $_httpClient;
 
     /**
+     * @var string 阿里云AccessKey ID
+     */
+    public $accessId;
+
+    /**
+     * @var string AccessKey
+     */
+    public $accessKey;
+
+    /**
+     * @var array 请求选项
+     * @see https://github.com/yiisoft/yii2-httpclient/blob/master/docs/guide/usage-request-options.md
+     */
+    public $requestOptions = [];
+
+    /**
      * @inheritdoc
      */
     public function init()
@@ -37,6 +55,17 @@ class BaseApi extends Component
         if (empty ($this->baseUrl)) {
             throw new InvalidConfigException ('The "baseUrl" property must be set.');
         }
+        if (empty ($this->accessId)) {
+            throw new InvalidConfigException ('The "accessId" property must be set.');
+        }
+        if (empty ($this->accessKey)) {
+            throw new InvalidConfigException ('The "accessKey" property must be set.');
+        }
+        $this->requestOptions = ArrayHelper::merge([
+            'timeout' => 5,
+            'sslVerifyPeer' => false,
+        ], $this->requestOptions);
+
     }
 
     /**
@@ -48,6 +77,7 @@ class BaseApi extends Component
         if (!is_object($this->_httpClient)) {
             $this->_httpClient = new Client([
                 'baseUrl' => $this->baseUrl,
+                'requestConfig' => $this->requestOptions,
             ]);
         }
         return $this->_httpClient;
@@ -95,15 +125,14 @@ class BaseApi extends Component
 
     /**
      * send Request
-     * @param $url
-     * @param $method
+     * @param string $url
+     * @param string $method
      * @param array $params
      * @param array $headers
      * @return array
      */
     public function api($url, $method, array $params = [], array $headers = [])
     {
-
         try {
             return $this->sendRequest($method, $url, $params, $headers);
         } catch (\Exception $e) {
