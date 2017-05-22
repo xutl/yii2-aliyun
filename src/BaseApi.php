@@ -9,11 +9,11 @@ namespace xutl\aliyun;
 
 use Yii;
 use yii\base\Component;
-use yii\base\Exception;
 use yii\httpclient\Client;
+use yii\httpclient\Exception;
 use yii\helpers\ArrayHelper;
-use yii\base\InvalidConfigException;
 use yii\httpclient\Response;
+use yii\base\InvalidConfigException;
 
 /**
  * Class BaseApi
@@ -94,16 +94,21 @@ class BaseApi extends Component
      * @param string $url request URL.
      * @param array $params request params.
      * @param array $headers additional request headers.
-     * @return Response response.
+     * @return array response.
+     * @throws Exception
      */
     protected function sendRequest($method, $url, array $params = [], array $headers = [])
     {
-        return $request = $this->getHttpClient()->createRequest()
+        $response = $request = $this->getHttpClient()->createRequest()
             ->setUrl($url)
             ->setMethod($method)
             ->setHeaders($headers)
             ->setData($params)
             ->send();
+        if ($response->isOk) {
+            throw new Exception($response->content, $response->statusCode);
+        }
+        return $response->getData();
     }
 
     /**
@@ -128,7 +133,7 @@ class BaseApi extends Component
      * @param string $url
      * @param array $params
      * @param array $headers
-     * @return Response response.
+     * @return array response.
      */
     protected function get($url, array $params = [], array $headers = [])
     {
@@ -140,7 +145,7 @@ class BaseApi extends Component
      * @param string $url
      * @param array $params
      * @param array $headers
-     * @return Response response.
+     * @return array response.
      */
     protected function post($url, array $params = [], array $headers = [])
     {
@@ -153,15 +158,10 @@ class BaseApi extends Component
      * @param string $method
      * @param array $params
      * @param array $headers
-     * @return Response response.
+     * @return array response.
      */
     public function api($url, $method, array $params = [], array $headers = [])
     {
-        try {
-            return $this->sendRequest($method, $url, $params, $headers);
-        } catch (\Exception $e) {
-            sleep(10);
-            return $this->sendRequest($method, $url, $params, $headers);
-        }
+        return $this->sendRequest($method, $url, $params, $headers);
     }
 }

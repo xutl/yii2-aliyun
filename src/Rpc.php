@@ -55,7 +55,7 @@ class Rpc extends BaseApi
      * @param string $method
      * @param array $params
      * @param array $headers
-     * @return Response
+     * @return array
      */
     public function api($url, $method, array $params = [], array $headers = [])
     {

@@ -99,7 +99,7 @@ class Live extends Rpc
     /**
      * 禁止推流
      * @param string $streamName
-     * @return string
+     * @return array
      */
     public function forbidLiveStream($streamName)
     {
@@ -116,7 +116,7 @@ class Live extends Rpc
     /**
      * 允许推流
      * @param string $streamName
-     * @return string
+     * @return array
      */
     public function resumeLiveStream($streamName)
     {
@@ -134,7 +134,7 @@ class Live extends Rpc
      * @param null|string $streamName
      * @param null|int $startTime
      * @param null|int $endTime
-     * @return Response
+     * @return array
      */
     public function liveStreamOnlineUserNum($streamName = null, $startTime = null, $endTime = null)
     {
@@ -155,7 +155,7 @@ class Live extends Rpc
 
     /**
      * 查询在线的直播推流列表
-     * @return string
+     * @return array
      */
     public function liveStreamsOnlineList()
     {
@@ -168,7 +168,7 @@ class Live extends Rpc
 
     /**
      * 查询推流黑名单列表
-     * @return string
+     * @return array
      */
     public function liveStreamsBlockList()
     {
@@ -182,7 +182,7 @@ class Live extends Rpc
      * 查询流控历史
      * @param string $startTime 查询开始时间 UTC时间 格式：2015-12-01T17:36:00Z
      * @param string $endTime 查询结束时间 UTC时间 格式：2015-12-01T17:37:00Z，EndTime和StartTime之间的间隔不能超过30天
-     * @return Response
+     * @return array
      */
     public function liveStreamsControlHistory($startTime, $endTime)
     {
@@ -198,7 +198,7 @@ class Live extends Rpc
     /**
      * 查询直播流的帧率和码率
      * @param string $streamName 流名称
-     * @return Response
+     * @return array
      */
     public function liveStreamsFrameRateAndBitRateData($streamName = null)
     {
@@ -220,7 +220,7 @@ class Live extends Rpc
      * @param string $endTime 结束时间，UTC格式，例如：2016-06-30T19:00:00Z，EndTime和StartTime之间的间隔不能超过30天
      * @param int $pageSize 分页大小，默认3000，最大3000，取值：1~3000之前的任意整数
      * @param int $pageNumber 取得第几页，默认1
-     * @return Response
+     * @return array
      */
     public function liveStreamsPublishList($streamName, $startTime, $endTime, $pageSize = 3000, $pageNumber = 1)
     {
@@ -230,10 +230,13 @@ class Live extends Rpc
             'AppName' => $this->appName,
             'StartTime' => gmdate('Y-m-d\TH:i:s\Z', $startTime),
             'EndTime' => gmdate('Y-m-d\TH:i:s\Z', $endTime),
+            'PageSize' => $pageSize,
+            'PageNumber' => $pageNumber,
         ];
         if (!empty($streamName)) {
             $params['StreamName'] = $streamName;
         }
+
         return $this->get('', $params);
     }
 
