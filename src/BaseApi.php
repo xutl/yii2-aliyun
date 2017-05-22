@@ -11,7 +11,6 @@ use Yii;
 use yii\base\Component;
 use yii\httpclient\Client;
 use yii\httpclient\Exception;
-use yii\helpers\ArrayHelper;
 use yii\httpclient\Response;
 use yii\base\InvalidConfigException;
 
@@ -62,10 +61,6 @@ class BaseApi extends Component
         if (empty ($this->accessKey)) {
             throw new InvalidConfigException ('The "accessKey" property must be set.');
         }
-        $this->requestOptions = ArrayHelper::merge([
-            'timeout' => 5,
-            'sslVerifyPeer' => false,
-        ], $this->requestOptions);
     }
 
     /**

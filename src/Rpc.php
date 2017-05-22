@@ -9,6 +9,7 @@ namespace xutl\aliyun;
 
 use Yii;
 use yii\httpclient\Response;
+use yii\helpers\ArrayHelper;
 use yii\base\InvalidConfigException;
 
 /**
@@ -47,6 +48,10 @@ class Rpc extends BaseApi
         if (empty ($this->version)) {
             throw new InvalidConfigException ('The "version" property must be set.');
         }
+        $this->requestOptions = ArrayHelper::merge([
+            'timeout' => 5,
+            'sslVerifyPeer' => false,
+        ], $this->requestOptions);
     }
 
     /**
