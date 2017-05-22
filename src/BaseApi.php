@@ -105,7 +105,7 @@ class BaseApi extends Component
             ->setHeaders($headers)
             ->setData($params)
             ->send();
-        if ($response->isOk) {
+        if (!$response->isOk) {
             throw new Exception($response->content, $response->statusCode);
         }
         return $response->getData();
