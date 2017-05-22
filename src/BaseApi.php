@@ -13,6 +13,7 @@ use yii\base\Exception;
 use yii\httpclient\Client;
 use yii\helpers\ArrayHelper;
 use yii\base\InvalidConfigException;
+use yii\httpclient\Response;
 
 /**
  * Class BaseApi
@@ -65,7 +66,6 @@ class BaseApi extends Component
             'timeout' => 5,
             'sslVerifyPeer' => false,
         ], $this->requestOptions);
-
     }
 
     /**
@@ -77,7 +77,12 @@ class BaseApi extends Component
         if (!is_object($this->_httpClient)) {
             $this->_httpClient = new Client([
                 'baseUrl' => $this->baseUrl,
-                'requestConfig' => $this->requestOptions,
+                'requestConfig' => [
+                    'options' => $this->requestOptions
+                ],
+                'responseConfig' => [
+                    'format' => Client::FORMAT_JSON
+                ],
             ]);
         }
         return $this->_httpClient;
@@ -89,21 +94,16 @@ class BaseApi extends Component
      * @param string $url request URL.
      * @param array $params request params.
      * @param array $headers additional request headers.
-     * @return array response.
-     * @throws Exception on failure.
+     * @return Response response.
      */
     protected function sendRequest($method, $url, array $params = [], array $headers = [])
     {
-        $response = $request = $this->getHttpClient()->createRequest()
+        return $request = $this->getHttpClient()->createRequest()
             ->setUrl($url)
             ->setMethod($method)
             ->setHeaders($headers)
             ->setData($params)
             ->send();
-        if (!$response->isOk) {
-            throw new Exception ('Http request failed.');
-        }
-        return $response;
     }
 
     /**
@@ -124,12 +124,36 @@ class BaseApi extends Component
     }
 
     /**
+     * send Get Request
+     * @param string $url
+     * @param array $params
+     * @param array $headers
+     * @return Response response.
+     */
+    protected function get($url, array $params = [], array $headers = [])
+    {
+        return $this->api($url, 'GET', $params, $headers);
+    }
+
+    /**
+     * send Post Request
+     * @param string $url
+     * @param array $params
+     * @param array $headers
+     * @return Response response.
+     */
+    protected function post($url, array $params = [], array $headers = [])
+    {
+        return $this->api($url, 'POST', $params, $headers);
+    }
+
+    /**
      * send Request
      * @param string $url
      * @param string $method
      * @param array $params
      * @param array $headers
-     * @return array
+     * @return Response response.
      */
     public function api($url, $method, array $params = [], array $headers = [])
     {
