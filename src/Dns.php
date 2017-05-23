@@ -140,4 +140,20 @@ class Dns extends Rpc
         ];
         return $this->get('', $params);
     }
+
+    /**
+     * 设置解析记录状态
+     * @param string $recordId 解析记录的ID，此参数在添加解析时会返回，在获取域名解析列表时会返回
+     * @param bool $status Enable: 启用解析 Disable: 暂停解析
+     * @return array
+     */
+    public function setDomainRecordStatus($recordId, $status)
+    {
+        $params = [
+            'Action' => 'DeleteDomainRecord',
+            'RecordId' => $recordId,
+            'Status' => $status == true ? 'Enable' : 'Disable',
+        ];
+        return $this->get('', $params);
+    }
 }
