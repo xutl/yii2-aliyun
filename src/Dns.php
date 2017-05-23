@@ -150,7 +150,7 @@ class Dns extends Rpc
     public function setDomainRecordStatus($recordId, $status)
     {
         $params = [
-            'Action' => 'DeleteDomainRecord',
+            'Action' => 'SetDomainRecordStatus',
             'RecordId' => $recordId,
             'Status' => $status == true ? 'Enable' : 'Disable',
         ];
