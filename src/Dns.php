@@ -86,12 +86,12 @@ class Dns extends Rpc
      * @param string $line 解析线路，默认为default。
      * @return array
      */
-    public function addDomainRecord($domainName, $pr, $type, $value, $ttl = 600, $priority = 10, $line = 'default')
+    public function addDomainRecord($domainName, $rr, $type, $value, $ttl = 600, $priority = 10, $line = 'default')
     {
         $params = [
             'Action' => 'AddDomainRecord',
             'DomainName' => $domainName,
-            'RR' => $pr,
+            'RR' => $rr,
             'Type' => $type,
             'Value' => $value,
             'TTL' => $ttl,
@@ -104,7 +104,7 @@ class Dns extends Rpc
     /**
      * 修改解析记录
      * @param string $recordId
-     * @param string $pr 主机记录，如果要解析@.exmaple.com，主机记录要填写"@”，而不是空
+     * @param string $rr 主机记录，如果要解析@.exmaple.com，主机记录要填写"@”，而不是空
      * @param string $type 解析记录类型
      * @param string $value 记录值
      * @param int $ttl 生存时间，默认为600秒（10分钟）
@@ -112,12 +112,12 @@ class Dns extends Rpc
      * @param string $line 解析线路，默认为default。
      * @return array
      */
-    public function updateDomainRecord($recordId, $pr, $type, $value, $ttl = 600, $priority = 10, $line = 'default')
+    public function updateDomainRecord($recordId, $rr, $type, $value, $ttl = 600, $priority = 10, $line = 'default')
     {
         $params = [
             'Action' => 'UpdateDomainRecord',
             'RecordId' => $recordId,
-            'RR' => $pr,
+            'RR' => $rr,
             'Type' => $type,
             'Value' => $value,
             'TTL' => $ttl,
