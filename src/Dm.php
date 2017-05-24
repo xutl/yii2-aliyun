@@ -48,7 +48,7 @@ class Dm extends Rpc
      * @param string $textBody 邮件text正文
      * @return array
      */
-    public function singleSendMail($accountName, $replyToAddress, $toAddress, $fromAlias = null, $addressType, $subject, $htmlBody = null, $textBody = null)
+    public function singleSendMail($accountName, $replyToAddress, $addressType, $toAddress, $fromAlias = null, $subject = null, $htmlBody = null, $textBody = null)
     {
         $params = [
             'Action' => 'SingleSendMail',
@@ -56,11 +56,19 @@ class Dm extends Rpc
             'ReplyToAddress' => $replyToAddress,
             'AddressType' => $addressType,
             'ToAddress' => $toAddress,
-            'FromAlias' => $fromAlias,
-            'Subject' => $subject,
-            'HtmlBody' => $htmlBody,
-            'TextBody' => $textBody
         ];
+        if (!empty($fromAlias)) {
+            $params['FromAlias'] = $fromAlias;
+        }
+        if (!empty($subject)) {
+            $params['Subject'] = $subject;
+        }
+        if (!empty($htmlBody)) {
+            $params['HtmlBody'] = $htmlBody;
+        }
+        if (!empty($textBody)) {
+            $params['TextBody'] = $textBody;
+        }
         return $this->post('', $params);
     }
 
