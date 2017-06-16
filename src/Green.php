@@ -33,70 +33,131 @@ class Green extends Roa
     public $regionId = 'cn-hangzhou';
 
     /**
-     * 文本垃圾检测
-     * @param string $content
+     * 同步图片鉴黄暴恐
+     * @param array $tasks
+     * @return mixed
      * @throws Exception
      */
-    public function textScan($content)
+    public function imageScan($tasks = [])
     {
+        foreach ($tasks as $key => $val) {
+            if (!isset($val['dataId'])) $tasks[$key]['dataId'] = uniqid();
+        }
+        $response = $this->api('/green/image/scan', 'POST', [
+            "tasks" => $tasks,
+            "scenes" => [
+                'porn','terrorism'
+            ]
+        ]);
+        if (200 == $response['code']) {
+            return $response['data'];
+        } else {
+            throw new Exception($response['msg'], $response['code']);
+        }
+    }
+
+    /**
+     * 同步图像OCI识别
+     * @param array $tasks
+     * @return mixed
+     * @throws Exception
+     */
+    public function imageOci($tasks = [])
+    {
+        foreach ($tasks as $key => $val) {
+            if (!isset($val['dataId'])) $tasks[$key]['dataId'] = uniqid();
+        }
+        $response = $this->api('/green/image/scan', 'POST', [
+            "tasks" => $tasks,
+            "scenes" => [
+                'oci'
+            ]
+        ]);
+        if (200 == $response['code']) {
+            return $response['data'];
+        } else {
+            throw new Exception($response['msg'], $response['code']);
+        }
+    }
+
+    /**
+     * 同步图像人脸识别
+     * @param array $tasks
+     * @return mixed
+     * @throws Exception
+     */
+    public function imageFace($tasks = [])
+    {
+        foreach ($tasks as $key => $val) {
+            if (!isset($val['dataId'])) $tasks[$key]['dataId'] = uniqid();
+        }
+        $response = $this->api('/green/image/scan', 'POST', [
+            "tasks" => $tasks,
+            "scenes" => [
+                'sface'
+            ]
+        ]);
+        if (200 == $response['code']) {
+            return $response['data'];
+        } else {
+            throw new Exception($response['msg'], $response['code']);
+        }
+    }
+
+    /**
+     * 文本垃圾检测
+     * @param array $tasks
+     * @return array
+     * @throws Exception
+     */
+    public function textScan($tasks = [])
+    {
+        foreach ($tasks as $key => $val) {
+            if (!isset($val['dataId'])) $tasks[$key]['dataId'] = uniqid();
+        }
         $response = $this->api('/green/text/scan', 'POST', [
-            "tasks" => [
-                [
-                    'dataId' => uniqid(),
-                    'content' => $content
-                ]
-            ],
+            "tasks" => $tasks,
             "scenes" => [
                 'antispam'
             ]
         ]);
-        print_r($response);
-        return $this->getResponse($response);
+        if (200 == $response['code']) {
+            return $response['data'];
+        } else {
+            throw new Exception($response['msg'], $response['code']);
+        }
     }
 
     /**
      * 关键词检测
-     * @param string $content
+     * @param array $tasks
      * @return array
+     * @throws Exception
      */
-    public function keywordScan($content)
+    public function keywordScan($tasks = [])
     {
-        return $this->api('/green/text/scan', 'POST', [
-            "tasks" => [
-                [
-                    'dataId' => uniqid(),
-                    'content' => $content
-                ]
-            ],
-            "scenes" => [
+        foreach ($tasks as $key => $val) {
+            if (!isset($val['dataId'])) $tasks[$key]['dataId'] = uniqid();
+        }
+        $response = $this->api('/green/text/scan', 'POST', [
+            'tasks' => $tasks,
+            'scenes' => [
                 'keyword'
             ]
         ]);
+        return $this->getResponse($response);
     }
 
     /**
      * @param array $response
+     * @return mixed
      * @throws Exception
      */
     public function getResponse($response)
     {
         if (200 == $response['code']) {
             $taskResults = $response['data'];
-            foreach ($taskResults as $taskResult) {
-                if (200 == $taskResult['code']) {
-                    $sceneResults = $taskResult['results'];
-                    foreach ($sceneResults as $sceneResult) {
-                        $scene = $sceneResult['scene'];
-                        $suggestion = $sceneResult['suggestion'];
-                        //根据scene和suggetion做相关的处理
-                        //do something
-                        print_r($scene);
-                        print_r($suggestion);
-                    }
-                } else {
-                    throw new Exception($taskResult['msg'], $taskResult['code']);
-                }
-            }
+            return $taskResults;
         } else {
             throw new Exception($response['msg'], $response['code']);
         }

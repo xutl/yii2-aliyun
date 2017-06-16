@@ -182,7 +182,6 @@ class Roa extends Component
         return $this->sendRequest($method, $uri, $content, $headers);
     }
 
-
     /**
      * 预处理请求头
      * @param string $uri
