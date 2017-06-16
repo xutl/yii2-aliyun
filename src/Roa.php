@@ -8,6 +8,7 @@
 namespace xutl\aliyun;
 
 use Yii;
+use yii\helpers\Json;
 use yii\base\Component;
 use yii\httpclient\Client;
 use yii\httpclient\Exception;
@@ -110,7 +111,6 @@ class Roa extends Component
             $this->_httpClient = new Client([
                 'baseUrl' => $this->baseUrl,
                 'requestConfig' => [
-                    'format' => Client::FORMAT_JSON,
                     'options' => $this->requestOptions
                 ],
                 'responseConfig' => [
@@ -124,21 +124,19 @@ class Roa extends Component
     /**
      * Sends HTTP request.
      * @param string $method request type.
-     * @param string $url request URL.
-     * @param mixed $data content data fields.
-     * @param array $params request params.
+     * @param string $uri request URI.
+     * @param string $content HTTP message raw content.
      * @param array $headers additional request headers.
      * @return array response.
      * @throws Exception
      */
-    protected function sendRequest($method, $url, $data, array $params = [], array $headers = [])
+    protected function sendRequest($method, $uri, $content, array $headers = [])
     {
-        $response = $request = $this->getHttpClient()->createRequest()
-            ->setUrl($url)
+        $response = $this->getHttpClient()->createRequest()
+            ->setUrl($uri)
             ->setMethod($method)
             ->setHeaders($headers)
-            ->setContent($data)
-            ->setData($params)
+            ->setContent($content)
             ->send();
         if (!$response->isOk) {
             throw new Exception($response->content, $response->statusCode);
@@ -150,40 +148,71 @@ class Roa extends Component
      * send Request
      * @param string $uri
      * @param string $method
-     * @param mixed $data content data fields.
      * @param array $params request params.
      * @param array $headers additional request headers.
      * @return array response.
      */
-    public function api($uri, $method, $data, array $params = [], array $headers = [])
+    public function api($uri, $method, array $params = [], array $headers = [])
     {
+        $content = Json::encode($params);
+        $headers = $this->prepareHeader($uri, $method, $content, $headers);
+        $signString = $method . self::$headerSeparator;
+        if (isset($headers["Accept"])) {
+            $signString = $signString . $headers['Accept'];
+        }
+        $signString = $signString . self::$headerSeparator;
+        if (isset($headers["Content-MD5"])) {
+            $signString = $signString . $headers['Content-MD5'];
+        }
+        $signString = $signString . self::$headerSeparator;
+        if (isset($headers["Content-Type"])) {
+            $signString = $signString . $headers['Content-Type'];
+        }
+        $signString = $signString . self::$headerSeparator;
+        if (isset($headers["Date"])) {
+            $signString = $signString . $headers['Date'];
+        }
+        $signString = $signString . self::$headerSeparator;
+        $uri = $this->replaceOccupiedParameters($uri);
+        $signString = $signString . $this->buildCanonicalHeaders($headers);
+        $signString .= $uri;
+
+        $headers['Authorization'] = 'acs ' . $this->accessId . ':' . base64_encode(hash_hmac('sha1', $signString, $this->accessKey, true));
+
+        return $this->sendRequest($method, $uri, $content, $headers);
+    }
+
+
+    /**
+     * 预处理请求头
+     * @param string $uri
+     * @param string $method
+     * @param string $content
+     * @param array $headers
+     * @return array
+     */
+    private function prepareHeader($uri, $method, $content = null, array $headers = [])
+    {
+        $headers["x-sdk-client"] = "yii2/2.0.0";
         $headers['x-acs-version'] = $this->version;//接口版本
         $headers['x-acs-signature-nonce'] = uniqid();//随机字符串，用来避免回放攻击
         $headers['x-acs-signature-version'] = $this->signatureVersion;//签名版本，目前取值：1.0
         $headers['x-acs-signature-method'] = $this->signatureMethod;//签名方法，目前只支持: HMAC-SHA1
         $headers["x-acs-region-id"] = $this->regionId;
-        $signString = $method . self::$headerSeparator;
-        $headers['Accept'] = 'application/json';
-        $signString = $signString . $headers['Accept'] . self::$headerSeparator;
-        $headers['Content-MD5'] = base64_encode(md5(json_encode($data), true));
-        $signString = $signString . $headers['Content-MD5'] . self::$headerSeparator;
-        $headers['Content-Type'] = 'application/octet-stream;charset=utf-8';
-        $signString = $signString . $headers['Content-Type'] . self::$headerSeparator;
         $headers['Date'] = gmdate($this->dateTimeFormat);//GMT日期格式，例如：Tue, 17 Jan 2017 10:16:36 GMT
-        $signString = $signString . $headers['Date'] . self::$headerSeparator;
+        $headers['Accept'] = 'application/json';
 
-        $signString = $signString . $this->buildCanonicalHeaders($headers);
-        $signString .= $uri;
-        $headers['Authorization'] = 'acs ' . $this->accessId . ':' . base64_encode(hash_hmac('sha1', $signString, $this->accessId, true));
-
-        return $this->getHttpClient()->post($uri, $data, $headers)->send();
+        if ($content != null) {
+            $headers["Content-MD5"] = base64_encode(md5($content, true));
+        }
+        $headers['Content-Type'] = 'application/octet-stream;charset=utf-8';
+        return $headers;
     }
 
-
     /**
-     * 替换path参数占位
+     * 替换Uri中的参数
      * @param string $uri
-     * @return string
+     * @return mixed
      */
     private function replaceOccupiedParameters($uri)
     {
@@ -215,5 +244,24 @@ class Roa extends Component
             $headerString = $headerString . $sortMapKey . ':' . $sortMapValue . self::$headerSeparator;
         }
         return $headerString;
+    }
+
+    /**
+     * 获取Uri参数
+     * @return array
+     */
+    public function getPathParameters()
+    {
+        return $this->pathParameters;
+    }
+
+    /**
+     * 设置Uri参数
+     * @param string $name
+     * @param string $value
+     */
+    public function putPathParameter($name, $value)
+    {
+        $this->pathParameters[$name] = $value;
     }
 }
