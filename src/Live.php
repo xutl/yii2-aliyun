@@ -79,9 +79,6 @@ class Live extends Rpc
         if (empty ($this->domain)) {
             throw new InvalidConfigException ('The "domain" property must be set.');
         }
-        if (empty ($this->appName)) {
-            throw new InvalidConfigException ('The "appName" property must be set.');
-        }
         if (empty ($this->recordDomain)) {
             throw new InvalidConfigException ('The "recordDomain" property must be set.');
         }
