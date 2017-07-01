@@ -89,15 +89,16 @@ class Live extends Rpc
 
     /**
      * 禁止推流
+     * @param string $appName 应用名称
      * @param string $streamName
      * @return array
      */
-    public function forbidLiveStream($streamName)
+    public function forbidLiveStream($appName, $streamName)
     {
         return $this->get('', [
             'Action' => 'ForbidLiveStream',
             'DomainName' => $this->domain,
-            'AppName' => $this->appName,
+            'AppName' => $appName,
             'StreamName' => $streamName,
             'LiveStreamType' => 'publisher',
             'ResumeTime' => gmdate('Y-m-d\TH:i:s\Z', mktime(0, 0, 0, 1, 1, 2050))
@@ -106,15 +107,16 @@ class Live extends Rpc
 
     /**
      * 允许推流
+     * @param string $appName 应用名称
      * @param string $streamName
      * @return array
      */
-    public function resumeLiveStream($streamName)
+    public function resumeLiveStream($appName, $streamName)
     {
         return $this->get('', [
             'Action' => 'ResumeLiveStream',
             'DomainName' => $this->domain,
-            'AppName' => $this->appName,
+            'AppName' => $appName,
             'StreamName' => $streamName,
             'LiveStreamType' => 'publisher'
         ]);
@@ -122,17 +124,18 @@ class Live extends Rpc
 
     /**
      * 实时查询在线人数的请求参数
+     * @param string $appName 应用名称
      * @param null|string $streamName
      * @param null|int $startTime
      * @param null|int $endTime
      * @return array
      */
-    public function liveStreamOnlineUserNum($streamName = null, $startTime = null, $endTime = null)
+    public function liveStreamOnlineUserNum($appName, $streamName = null, $startTime = null, $endTime = null)
     {
         $params = [
             'Action' => 'DescribeLiveStreamOnlineUserNum',
             'DomainName' => $this->domain,
-            'AppName' => $this->appName
+            'AppName' => $appName
         ];
         if (!empty($streamName)) {
             $params['StreamName'] = $streamName;
@@ -146,14 +149,15 @@ class Live extends Rpc
 
     /**
      * 查询在线的直播推流列表
+     * @param string $appName 应用名称
      * @return array
      */
-    public function liveStreamsOnlineList()
+    public function liveStreamsOnlineList($appName)
     {
         return $this->get('', [
             'Action' => 'DescribeLiveStreamsOnlineList',
             'DomainName' => $this->domain,
-            'AppName' => $this->appName
+            'AppName' => $appName
         ]);
     }
 
@@ -171,16 +175,17 @@ class Live extends Rpc
 
     /**
      * 查询流控历史
+     * @param string $appName 应用名称
      * @param string $startTime 查询开始时间 UTC时间 格式：2015-12-01T17:36:00Z
      * @param string $endTime 查询结束时间 UTC时间 格式：2015-12-01T17:37:00Z，EndTime和StartTime之间的间隔不能超过30天
      * @return array
      */
-    public function liveStreamsControlHistory($startTime, $endTime)
+    public function liveStreamsControlHistory($appName, $startTime, $endTime)
     {
         return $this->get('', [
             'Action' => 'DescribeLiveStreamsControlHistory',
             'DomainName' => $this->domain,
-            'AppName' => $this->appName,
+            'AppName' => $appName,
             'StartTime' => gmdate('Y-m-d\TH:i:s\Z', $startTime),
             'EndTime' => gmdate('Y-m-d\TH:i:s\Z', $endTime),
         ]);
@@ -188,15 +193,16 @@ class Live extends Rpc
 
     /**
      * 查询直播流的帧率和码率
+     * @param string $appName 应用名称
      * @param string $streamName 流名称
      * @return array
      */
-    public function liveStreamsFrameRateAndBitRateData($streamName = null)
+    public function liveStreamsFrameRateAndBitRateData($appName, $streamName = null)
     {
         $params = [
             'Action' => 'DescribeLiveStreamsFrameRateAndBitRateData',
             'DomainName' => $this->domain,
-            'AppName' => $this->appName,
+            'AppName' => $appName,
         ];
         if (!empty($streamName)) {
             $params['StreamName'] = $streamName;
@@ -206,6 +212,7 @@ class Live extends Rpc
 
     /**
      * 查询推流历史
+     * @param string $appName 应用名称
      * @param string $streamName 直播流名称
      * @param string $startTime 起始时间，UTC格式，例如：2016-06-29T19:00:00Z
      * @param string $endTime 结束时间，UTC格式，例如：2016-06-30T19:00:00Z，EndTime和StartTime之间的间隔不能超过30天
@@ -213,12 +220,12 @@ class Live extends Rpc
      * @param int $pageNumber 取得第几页，默认1
      * @return array
      */
-    public function liveStreamsPublishList($streamName, $startTime, $endTime, $pageSize = 3000, $pageNumber = 1)
+    public function liveStreamsPublishList($appName, $streamName, $startTime, $endTime, $pageSize = 3000, $pageNumber = 1)
     {
         $params = [
             'Action' => 'DescribeLiveStreamsPublishList',
             'DomainName' => $this->domain,
-            'AppName' => $this->appName,
+            'AppName' => $appName,
             'StartTime' => gmdate('Y-m-d\TH:i:s\Z', $startTime),
             'EndTime' => gmdate('Y-m-d\TH:i:s\Z', $endTime),
             'PageSize' => $pageSize,
