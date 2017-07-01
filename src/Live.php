@@ -7,7 +7,6 @@
 
 namespace xutl\aliyun;
 
-use yii\httpclient\Response;
 use yii\base\InvalidConfigException;
 
 /**
@@ -32,11 +31,6 @@ class Live extends Rpc
     public $domain;
 
     /**
-     * @var string 应用名称
-     */
-    public $appName;
-
-    /**
      * @var string 推流鉴权
      */
     public $pushAuth;
@@ -47,7 +41,7 @@ class Live extends Rpc
     public $pushDomain = 'video-center.alivecdn.com';
 
     /**
-     * @var string
+     * @var string 录像播放域名，通常是OSS地址
      */
     public $recordDomain;
 
@@ -57,19 +51,14 @@ class Live extends Rpc
     public $secureConnection = false;
 
     /**
-     * @var int 签名有效期,默认有效期是一周
+     * @var int 推流签名有效期,默认有效期是一周
      */
     public $authTime = 604800;
 
     /**
-     * @var int 秘钥过期时间
+     * @var int 签名过期时间
      */
     private $expirationTime;
-
-    /**
-     * @var string 播放协议
-     */
-    private $playScheme;
 
     /**
      * @var string 播放地址
@@ -77,14 +66,16 @@ class Live extends Rpc
     private $httpPlayUrl;
 
     /**
+     * 初始化直播
      * @throws InvalidConfigException
      */
     public function init()
     {
         parent::init();
+        //初始化过期时间
         $this->expirationTime = time() + $this->authTime;
-        $this->playScheme = $this->secureConnection ? 'https://' : 'http://';
-        $this->httpPlayUrl = $this->playScheme . $this->domain;
+        //播放地址前半段
+        $this->httpPlayUrl = ($this->secureConnection ? 'https://' : 'http://') . $this->domain;
         if (empty ($this->domain)) {
             throw new InvalidConfigException ('The "domain" property must be set.');
         }
@@ -242,12 +233,13 @@ class Live extends Rpc
 
     /**
      * 直播签名
+     * @param string $appName 应用名称
      * @param string $streamName 直播流名称
      * @return string
      */
-    public function getSign($streamName)
+    protected function getSign($appName, $streamName)
     {
-        $uri = "/{$this->appName}/{$streamName}";
+        $uri = "/{$appName}/{$streamName}";
         if ($this->pushAuth) {
             $authKey = "?vhost={$this->domain}&auth_key={$this->expirationTime}-0-0-" . md5("{$uri}-{$this->expirationTime}-0-0-{$this->pushAuth}");
         } else {
@@ -258,56 +250,35 @@ class Live extends Rpc
 
     /**
      * 获取推流地址
+     * @param string $appName 应用名称
      * @return string
      */
-    public function getPushPath()
+    public function getPushPath($appName)
     {
-        return "rtmp://{$this->pushDomain}/{$this->appName}/";
+        return "rtmp://{$this->pushDomain}/{$appName}/";
     }
 
     /**
      * 获取串码流
+     * @param string $appName 应用名称
      * @param string $streamName 直播流名称
      * @return string
      */
-    public function getPushArg($streamName)
+    public function getPushArg($appName, $streamName)
     {
-        return $streamName . $this->getSign($streamName);
+        return $streamName . $this->getSign($appName, $streamName);
     }
 
     /**
      * 获取直播推流地址
+     * @param string $appName 应用名称
      * @param string $streamName 直播流名称
      * @return string
      */
-    public function getPushUrl($streamName)
+    public function getPushUrl($appName, $streamName)
     {
-        $uri = "/{$this->appName}/{$streamName}";
-        return "rtmp://{$this->pushDomain}" . $uri . $this->getSign($streamName);
-    }
-
-    /**
-     * 验证签名
-     * @param string $streamName 直播流名称
-     * @param string $usrargs
-     * @return bool
-     */
-    public function checkSign($streamName, $usrargs)
-    {
-        parse_str($usrargs, $args);
-        if (isset($args['vhost']) && isset($args['auth_key'])) {
-            if ($args['vhost'] != $this->domain) {
-                return false;
-            }
-            $params = explode('-', $args['auth_key'], 4);
-            if (isset($params[0]) && $params[3]) {
-                $uri = "/{$this->appName}/{$streamName}";
-                if ($params[3] == md5("{$uri}-{$params[0]}-0-0-{$this->pushAuth}")) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        $uri = "/{$appName}/{$streamName}";
+        return "rtmp://{$this->pushDomain}" . $uri . $this->getSign($appName, $streamName);
     }
 
     /**
@@ -325,50 +296,54 @@ class Live extends Rpc
     }
 
     /**
+     * 获取阿里云播放地址
+     * @param string $appName 应用名称
+     * @param string $streamName 直播流名称
+     * @return array
+     */
+    public function getPlayUrls($appName, $streamName)
+    {
+        return [
+            'rtmp' => $this->getPlayUrlForRTMP($appName, $streamName),
+            'flv' => $this->getPlayUrlForFLV($appName, $streamName),
+            'm3u8' => $this->getPlayUrlForM3U8($appName, $streamName)
+        ];
+    }
+
+    /**
      * 获取RTMP拉流地址
+     * @param string $appName 应用名称
      * @param string $streamName 直播流名称
      * @return string
      */
-    public function getPlayUrlForRTMP($streamName)
+    public function getPlayUrlForRTMP($appName, $streamName)
     {
-        $uri = "/{$this->appName}/{$streamName}";
+        $uri = "/{$appName}/{$streamName}";
         return 'rtmp://' . $this->domain . $uri . $this->getAuthKey($uri);
     }
 
     /**
      * 获取FLV播放地址
+     * @param string $appName 应用名称
      * @param string $streamName 直播流名称
      * @return string
      */
-    public function getPlayUrlForFLV($streamName)
+    public function getPlayUrlForFLV($appName, $streamName)
     {
-        $uri = "/{$this->appName}/{$streamName}.flv";
+        $uri = "/{$appName}/{$streamName}.flv";
         return $this->httpPlayUrl . $uri . $this->getAuthKey($uri);
     }
 
     /**
      * 获取M3U8播放地址
+     * @param string $appName 应用名称
      * @param string $streamName 直播流名称
      * @return string
      */
-    public function getPlayUrlForM3U8($streamName)
+    public function getPlayUrlForM3U8($appName, $streamName)
     {
-        $uri = "/{$this->appName}/{$streamName}.m3u8";
+        $uri = "/{$appName}/{$streamName}.m3u8";
         return $this->httpPlayUrl . $uri . $this->getAuthKey($uri);
-    }
-
-    /**
-     * 获取阿里云播放地址
-     * @param string $streamName 直播流名称
-     * @return array
-     */
-    public function getPlayUrls($streamName)
-    {
-        return [
-            'rtmp' => $this->getPlayUrlForRTMP($streamName),
-            'flv' => $this->getPlayUrlForFLV($streamName),
-            'm3u8' => $this->getPlayUrlForM3U8($streamName)
-        ];
     }
 
     /**
@@ -383,37 +358,12 @@ class Live extends Rpc
     }
 
     /**
-     * 获取签名过期时间
-     * @return int
-     */
-    public function getExpirationTime()
-    {
-        return $this->expirationTime;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPlayScheme()
-    {
-        return $this->playScheme;
-    }
-
-    /**
      * 获取录像播放地址
      * @param string $uri
      * @return string
      */
     public function getRecordUrl($uri)
     {
-        return '//' . $this->recordDomain . '/' . $uri;
-    }
-
-    /**
-     * @return string
-     */
-    public function getHttpPlayUrl()
-    {
-        return $this->httpPlayUrl;
+        return ($this->secureConnection ? 'https://' : 'http://') . $this->recordDomain . '/' . $uri;
     }
 }
