@@ -309,8 +309,12 @@ class Live extends Rpc
     {
         return [
             'rtmp' => $this->getPlayUrlForRTMP($appName, $streamName),
+            'rtmp_sd' => $this->getPlayUrlForRTMP($appName, $streamName, 'sd'),
+            'rtmp_hd' => $this->getPlayUrlForRTMP($appName, $streamName, 'hd'),
             'flv' => $this->getPlayUrlForFLV($appName, $streamName),
-            'hls' => $this->getPlayUrlForM3U8($appName, $streamName)
+            'flv_sd' => $this->getPlayUrlForFLV($appName, $streamName, 'sd'),
+            'flv_hd' => $this->getPlayUrlForFLV($appName, $streamName, 'hd'),
+            'hls' => $this->getPlayUrlForHls($appName, $streamName),
         ];
     }
 
@@ -318,11 +322,15 @@ class Live extends Rpc
      * 获取RTMP拉流地址
      * @param string $appName 应用名称
      * @param string $streamName 直播流名称
+     * @param string $clarity 转码模板名称
      * @return string
      */
-    public function getPlayUrlForRTMP($appName, $streamName)
+    public function getPlayUrlForRTMP($appName, $streamName, $clarity = null)
     {
         $uri = "/{$appName}/{$streamName}";
+        if (!is_null($clarity)) {
+            $uri .= '_' . $clarity;
+        }
         return 'rtmp://' . $this->domain . $uri . $this->getAuthKey($uri);
     }
 
@@ -330,11 +338,16 @@ class Live extends Rpc
      * 获取FLV播放地址
      * @param string $appName 应用名称
      * @param string $streamName 直播流名称
+     * @param string $clarity 转码模板名称
      * @return string
      */
-    public function getPlayUrlForFLV($appName, $streamName)
+    public function getPlayUrlForFLV($appName, $streamName, $clarity = null)
     {
-        $uri = "/{$appName}/{$streamName}.flv";
+        $uri = "/{$appName}/{$streamName}";
+        if (!is_null($clarity)) {
+            $uri .= '_' . $clarity;
+        }
+        $uri .= '.flv';
         return $this->httpPlayUrl . $uri . $this->getAuthKey($uri);
     }
 
@@ -342,11 +355,16 @@ class Live extends Rpc
      * 获取M3U8播放地址
      * @param string $appName 应用名称
      * @param string $streamName 直播流名称
+     * @param string $clarity 转码模板名称
      * @return string
      */
-    public function getPlayUrlForM3U8($appName, $streamName)
+    public function getPlayUrlForHls($appName, $streamName, $clarity = null)
     {
-        $uri = "/{$appName}/{$streamName}.m3u8";
+        $uri = "/{$appName}/{$streamName}";
+        if (!is_null($clarity)) {
+            $uri .= '_' . $clarity;
+        }
+        $uri .= '.m3u8';
         return $this->httpPlayUrl . $uri . $this->getAuthKey($uri);
     }
 
