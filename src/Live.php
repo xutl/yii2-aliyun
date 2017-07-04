@@ -310,7 +310,7 @@ class Live extends Rpc
         return [
             'rtmp' => $this->getPlayUrlForRTMP($appName, $streamName),
             'flv' => $this->getPlayUrlForFLV($appName, $streamName),
-            'm3u8' => $this->getPlayUrlForM3U8($appName, $streamName)
+            'hls' => $this->getPlayUrlForM3U8($appName, $streamName)
         ];
     }
 
