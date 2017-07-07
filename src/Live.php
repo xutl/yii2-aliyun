@@ -236,6 +236,23 @@ class Live extends Rpc
     }
 
     /**
+     * 更新录制回调设置
+     * @param string $notifyUrl
+     * @param string $needStatusNotify
+     * @return array
+     */
+    public function updateLiveRecordNotifyConfig($notifyUrl, $needStatusNotify = 'true')
+    {
+        return $this->get('', [
+            'Action' => 'UpdateLiveRecordNotifyConfig',
+            'DomainName' => $this->domain,
+            'NotifyUrl' => $notifyUrl,
+            'NeedStatusNotify' => $needStatusNotify,
+
+        ]);
+    }
+
+    /**
      * 查询录制回调设置
      * @return array
      */
