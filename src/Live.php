@@ -236,6 +236,18 @@ class Live extends Rpc
     }
 
     /**
+     * 查询录制回调设置
+     * @return array
+     */
+    public function describeLiveRecordNotifyConfig()
+    {
+        return $this->get('', [
+            'Action' => 'DescribeLiveRecordNotifyConfig',
+            'DomainName' => $this->domain,
+        ]);
+    }
+
+    /**
      * 直播签名
      * @param string $appName 应用名称
      * @param string $streamName 直播流名称
