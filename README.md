@@ -37,7 +37,8 @@ Add following lines to your main configuration file:
 ```php
 'components' => [
     'sms' => [
-        'class' => 'xutl\aliyun\Sms'   
+        'class' => 'xutl\aliyun\Sms',   
+        //etc
     ],
 ],
 ```
