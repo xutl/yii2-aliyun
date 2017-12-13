@@ -124,4 +124,18 @@ class Aliyun extends Component
             'accessKey' => $this->accessKey
         ]);
     }
+
+    /**
+     * 获取云推送实例
+     * @return object|Green
+     * @throws InvalidConfigException
+     */
+    public function getGreen()
+    {
+        return Yii::createObject([
+            'class' => 'xutl\aliyun\Green',
+            'accessId' => $this->accessId,
+            'accessKey' => $this->accessKey
+        ]);
+    }
 }
