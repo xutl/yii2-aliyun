@@ -31,14 +31,6 @@ class Cdn extends Rpc
     public $version = '2014-11-11';
 
     /**
-     * @inheritdoc
-     */
-    public function init()
-    {
-        parent::init();
-    }
-
-    /**
      * 刷新缓存
      * @param string $ObjectPath 输入示例：abc.com/image/1.png，多个URL之间需要用换行符（\n或\r\n）分隔
      * @param string $ObjectType 可选， 刷新的类型， 其值可以为File | Directory，默认是File。
