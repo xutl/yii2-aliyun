@@ -56,14 +56,42 @@ class Aliyun extends Component
     }
 
     /**
-     * 获取Dns实例
+     * 获取CDN实例
      * @return object|HttpDns
+     * @throws InvalidConfigException
+     */
+    public function getCdn()
+    {
+        return Yii::createObject([
+            'class' => 'xutl\aliyun\Cdn',
+            'accessId' => $this->accessId,
+            'accessKey' => $this->accessKey
+        ]);
+    }
+
+    /**
+     * 获取Domain实例
+     * @return object|Domain
+     * @throws InvalidConfigException
+     */
+    public function getDomain()
+    {
+        return Yii::createObject([
+            'class' => 'xutl\aliyun\Domain',
+            'accessId' => $this->accessId,
+            'accessKey' => $this->accessKey
+        ]);
+    }
+
+    /**
+     * 获取Dns实例
+     * @return object|Dns
      * @throws InvalidConfigException
      */
     public function getDns()
     {
         return Yii::createObject([
-            'class' => 'xutl\aliyun\DNS',
+            'class' => 'xutl\aliyun\Dns',
             'accessId' => $this->accessId,
             'accessKey' => $this->accessKey
         ]);
@@ -78,6 +106,20 @@ class Aliyun extends Component
     {
         return Yii::createObject([
             'class' => 'xutl\aliyun\HttpDns',
+            'accessId' => $this->accessId,
+            'accessKey' => $this->accessKey
+        ]);
+    }
+
+    /**
+     * 获取Live实例
+     * @return object|Live
+     * @throws InvalidConfigException
+     */
+    public function getLive()
+    {
+        return Yii::createObject([
+            'class' => 'xutl\aliyun\Live',
             'accessId' => $this->accessId,
             'accessKey' => $this->accessKey
         ]);
