@@ -43,6 +43,11 @@ class BaseClient extends Client
     /**
      * @var string
      */
+    public $securityToken;
+
+    /**
+     * @var string
+     */
     protected $signatureMethod = self::SIGNATURE_METHOD_HMACSHA1;
 
     /**
@@ -83,15 +88,18 @@ class BaseClient extends Client
     {
         $params = $event->request->getData();
         $params['Version'] = $this->version;
-        if($this->regionId){
-            $params['RegionId'] = $this->regionId;
-        }
         $params['Format'] = 'JSON';
         $params['AccessKeyId'] = $this->accessId;
         $params['SignatureMethod'] = $this->signatureMethod;
         $params['Timestamp'] = gmdate($this->dateTimeFormat);
         $params['SignatureVersion'] = $this->signatureVersion;
         $params['SignatureNonce'] = uniqid();
+        if ($this->regionId) {
+            $params['RegionId'] = $this->regionId;
+        }
+        if ($this->securityToken) {
+            $params['SecurityToken'] = $this->securityToken;
+        }
 
         //参数排序
         ksort($params);
@@ -124,8 +132,8 @@ class BaseClient extends Client
 
     /**
      * 通过__call转发请求
-     * @param  string $name 方法名
-     * @param  array $arguments 参数
+     * @param string $name 方法名
+     * @param array $arguments 参数
      * @return array
      */
     public function __call($name, $arguments)
@@ -141,7 +149,7 @@ class BaseClient extends Client
 
     /**
      * 发起接口请求
-     * @param  array $params 接口参数
+     * @param array $params 接口参数
      * @return array
      */
     protected function _dispatchRequest($params)
