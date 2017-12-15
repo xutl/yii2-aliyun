@@ -4,9 +4,6 @@
 
 [![Latest Stable Version](https://poser.pugx.org/xutl/yii2-aliyun/v/stable.png)](https://packagist.org/packages/xutl/yii2-aliyun)
 [![Total Downloads](https://poser.pugx.org/xutl/yii2-aliyun/downloads.png)](https://packagist.org/packages/xutl/yii2-aliyun)
-[![Reference Status](https://www.versioneye.com/php/xutl:yii2-aliyun/reference_badge.svg)](https://www.versioneye.com/php/xutl:yii2-aliyun/references)
-[![Build Status](https://img.shields.io/travis/xutl/yii2-aliyun.svg)](http://travis-ci.org/xutl/yii2-aliyun)
-[![Dependency Status](https://www.versioneye.com/php/xutl:yii2-aliyun/dev-master/badge.png)](https://www.versioneye.com/php/xutl:yii2-aliyun/dev-master)
 [![License](https://poser.pugx.org/xutl/yii2-aliyun/license.svg)](https://packagist.org/packages/xutl/yii2-aliyun)
 
 
