@@ -49,6 +49,33 @@ Add following lines to your main configuration file:
 ],
 ```
 
+### Use 
+
+使用方式非常简单
+
+```php
+$aliyun = Yii::$app->aliyun;
+
+$cloudPush = $aliyun->getCloudPush();
+
+// 查看文档 https://help.aliyun.com/knowledge_detail/48085.html 请求参数中的 `Action` 省略，其他的照着协商就发包了。
+$res = $cloud->pushMessageToAndroid([
+    'AppKey'=>'123456',
+    'Target' => 'ALL',
+    'TargetValue' => 'ALL',
+    'Title' => 'Hello',
+    'Body' => 'Hello World!',
+]);
+
+var_dump($res->isOk);
+print_r($res->data);
+
+//其他接口类似调用方式
+
+//如果扩展 暂不支持的接口，直接继承 `\xutl\aliyun\BaseClient` 和 `\xutl\aliyun\BaseAcsClient` 基类即可自带 认证。你只需扩展方法即可。 
+```
+
+
 ## License
 
 This is released under the MIT License. See the bundled [LICENSE.md](LICENSE.md)
