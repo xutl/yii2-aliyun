@@ -7,11 +7,6 @@
 
 namespace xutl\aliyun;
 
-use yii\base\InvalidConfigException;
-use yii\helpers\Json;
-use yii\httpclient\Client;
-use yii\httpclient\RequestEvent;
-
 /**
  * 内容安全API
  *
@@ -23,7 +18,7 @@ class Green extends BaseAcsClient
     /**
      * @var string 网关地址
      */
-    public $baseUrl = 'http://green.cn-hangzhou.aliyuncs.com';
+    public $baseUrl = 'https://green.cn-hangzhou.aliyuncs.com';
 
     /**
      * @var string 绿网接口版本，当前版本为：2017-01-12
@@ -34,25 +29,6 @@ class Green extends BaseAcsClient
      * @var string 可用区
      */
     public $regionId = 'cn-hangzhou';
-
-    /**
-     * @inheritdoc
-     */
-    public function init()
-    {
-        parent::init();
-        if (empty ($this->accessId)) {
-            throw new InvalidConfigException ('The "accessId" property must be set.');
-        }
-        if (empty ($this->accessKey)) {
-            throw new InvalidConfigException ('The "accessKey" property must be set.');
-        }
-        if (empty ($this->version)) {
-            throw new InvalidConfigException ('The "version" property must be set.');
-        }
-        $this->responseConfig['format'] = Client::FORMAT_JSON;
-        $this->on(Client::EVENT_BEFORE_SEND, [$this, 'RequestEvent']);
-    }
 
     /**
      * 同步图片鉴黄暴恐
@@ -148,7 +124,4 @@ class Green extends BaseAcsClient
         ]);
         return $response->data;
     }
-
-
-
 }
