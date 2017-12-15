@@ -10,6 +10,8 @@ namespace xutl\aliyun;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\base\InvalidParamException;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class Aliyun
@@ -30,7 +32,7 @@ class Aliyun extends Component
     /**
      * @var array 服务配置
      */
-    public $services = [];
+    private $_services = [];
 
     /**
      * @inheritdoc
@@ -44,103 +46,77 @@ class Aliyun extends Component
         if (empty ($this->accessKey)) {
             throw new InvalidConfigException ('The "accessKey" property must be set.');
         }
+        $this->_services = [
+            'cloudPush' => ['class' => 'xutl\aliyun\CloudPush'],
+            'cdn' => ['class' => 'xutl\aliyun\Cdn'],
+            'domain' => ['class' => 'xutl\aliyun\Domain'],
+            'dns' => ['class' => 'xutl\aliyun\Dns'],
+            'httpDns' => ['class' => 'xutl\aliyun\Dns'],
+            'live' => ['class' => 'xutl\aliyun\Live'],
+            'green' => ['class' => 'xutl\aliyun\Green'],
+        ];
     }
 
     /**
-     * 获取云推送实例
-     * @return object|CloudPush
-     * @throws InvalidConfigException
+     * 设置
+     * @param array $services list of $services
      */
-    public function getCloudPush()
+    public function setServices(array $services)
     {
-        return Yii::createObject([
-            'class' => 'xutl\aliyun\CloudPush',
-            'accessId' => $this->accessId,
-            'accessKey' => $this->accessKey
-        ]);
+        $this->_services = ArrayHelper::merge($this->_services, $services);
     }
 
     /**
-     * 获取CDN实例
-     * @return object|HttpDns
+     * 获取接口列表
+     * @return BaseClient[]|BaseAcsClient list of services.
      * @throws InvalidConfigException
      */
-    public function getCdn()
+    public function getServices()
     {
-        return Yii::createObject([
-            'class' => 'xutl\aliyun\Cdn',
-            'accessId' => $this->accessId,
-            'accessKey' => $this->accessKey
-        ]);
+        $services = [];
+        foreach ($this->_services as $id => $service) {
+            $services[$id] = $this->getService($id);
+        }
+        return $services;
     }
 
     /**
-     * 获取Domain实例
-     * @return object|Domain
+     * 获取指定网关
+     * @param string $id service id.
+     * @return BaseClient|BaseAcsClient service instance.
      * @throws InvalidConfigException
      */
-    public function getDomain()
+    public function getService($id)
     {
-        return Yii::createObject([
-            'class' => 'xutl\aliyun\Domain',
-            'accessId' => $this->accessId,
-            'accessKey' => $this->accessKey
-        ]);
+        if (!array_key_exists($id, $this->_services)) {
+            throw new InvalidParamException("Unknown service '{$id}'.");
+        }
+        if (!is_object($this->_services[$id])) {
+            $this->_services[$id] = $this->createService($id, $this->_services[$id]);
+        }
+        return $this->_services[$id];
     }
 
     /**
-     * 获取Dns实例
-     * @return object|Dns
-     * @throws InvalidConfigException
+     * 检查指定网关是否存在
+     * @param string $id service id.
+     * @return boolean whether service exist.
      */
-    public function getDns()
+    public function hasService($id)
     {
-        return Yii::createObject([
-            'class' => 'xutl\aliyun\Dns',
-            'accessId' => $this->accessId,
-            'accessKey' => $this->accessKey
-        ]);
+        return array_key_exists($id, $this->_services);
     }
 
     /**
-     * 获取HttpDns实例
-     * @return object|HttpDns
+     * 从配置创建网关实例
+     * @param string $id api service id.
+     * @param array $config service instance configuration.
+     * @return object|BaseClient|BaseAcsClient service instance.
      * @throws InvalidConfigException
      */
-    public function getHttpDns()
+    protected function createService($id, $config)
     {
-        return Yii::createObject([
-            'class' => 'xutl\aliyun\HttpDns',
-            'accessId' => $this->accessId,
-            'accessKey' => $this->accessKey
-        ]);
-    }
-
-    /**
-     * 获取Live实例
-     * @return object|Live
-     * @throws InvalidConfigException
-     */
-    public function getLive()
-    {
-        return Yii::createObject([
-            'class' => 'xutl\aliyun\Live',
-            'accessId' => $this->accessId,
-            'accessKey' => $this->accessKey
-        ]);
-    }
-
-    /**
-     * 获取云推送实例
-     * @return object|Green
-     * @throws InvalidConfigException
-     */
-    public function getGreen()
-    {
-        return Yii::createObject([
-            'class' => 'xutl\aliyun\Green',
-            'accessId' => $this->accessId,
-            'accessKey' => $this->accessKey
-        ]);
+        $config['id'] = $id;
+        return Yii::createObject($config);
     }
 }
