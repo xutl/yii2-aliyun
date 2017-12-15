@@ -73,6 +73,7 @@ print_r($res->data);
 //其他接口类似调用方式
 
 //如果扩展 暂不支持的接口，直接继承 `\xutl\aliyun\BaseClient` 和 `\xutl\aliyun\BaseAcsClient` 基类即可自带 认证。你只需扩展方法即可。 
+// 然后使用YII 自带的组件机制，参见上面的安装配置，把你自定义的接口注入进来即可。
 ```
 
 
