@@ -7,17 +7,14 @@
 
 namespace xutl\aliyun;
 
-use Yii;
-use yii\base\Component;
+use yii\di\ServiceLocator;
 use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
-use yii\helpers\ArrayHelper;
 
 /**
  * Class Aliyun
  * @package xutl\aliyun
  */
-class Aliyun extends Component
+class Aliyun extends ServiceLocator
 {
     /**
      * @var string 阿里云AccessKey ID
@@ -30,9 +27,14 @@ class Aliyun extends Component
     public $accessKey;
 
     /**
-     * @var array 服务配置
+     * Aliyun constructor.
+     * @param array $config
      */
-    private $_services = [];
+    public function __construct($config = [])
+    {
+        $this->preInit($config);
+        parent::__construct($config);
+    }
 
     /**
      * @inheritdoc
@@ -46,7 +48,118 @@ class Aliyun extends Component
         if (empty ($this->accessKey)) {
             throw new InvalidConfigException ('The "accessKey" property must be set.');
         }
-        $this->_services = [
+    }
+
+    public function preInit(&$config)
+    {
+        // merge core components with custom components
+        foreach ($this->coreComponents() as $id => $component) {
+            if (!isset($config['components'][$id])) {
+                $config['components'][$id] = $component;
+            } elseif (is_array($config['components'][$id]) && !isset($config['components'][$id]['class'])) {
+                $config['components'][$id]['class'] = $component['class'];
+            }
+        }
+    }
+
+    /**
+     * 获取云推送实例
+     * @return object|CloudPush
+     * @throws InvalidConfigException
+     */
+    public function getCloudPush()
+    {
+        return $this->get('cloudPush');
+    }
+
+    /**
+     * 获取CDN实例
+     * @return object|HttpDns
+     * @throws InvalidConfigException
+     */
+    public function getCdn()
+    {
+        return $this->get('cdn');
+    }
+
+    /**
+     * 获取Domain实例
+     * @return object|Domain
+     * @throws InvalidConfigException
+     */
+    public function getDomain()
+    {
+        return $this->get('domain');
+    }
+
+    /**
+     * 获取Dns实例
+     * @return object|Dns
+     * @throws InvalidConfigException
+     */
+    public function getDns()
+    {
+        return $this->get('dns');
+    }
+
+    /**
+     * 获取HttpDns实例
+     * @return object|HttpDns
+     * @throws InvalidConfigException
+     */
+    public function getHttpDns()
+    {
+        return $this->get('httpDns');
+    }
+
+    /**
+     * 获取Live实例
+     * @return object|Live
+     * @throws InvalidConfigException
+     * @return boolean whether service exist.
+     */
+    public function getLive()
+    {
+        return $this->get('live');
+    }
+
+    /**
+     * 获取邮件推送
+     * @return object|Dm
+     * @throws InvalidConfigException
+     */
+    public function getDm()
+    {
+        return $this->get('dm');
+    }
+
+    /**
+     * 获取SMS实例
+     * @return object|Sms
+     * @throws InvalidConfigException
+     */
+    public function getSms()
+    {
+        return $this->get('sms');
+    }
+
+    /**
+     * 获取 内容安全实例
+     * @return object|Green
+     * @throws InvalidConfigException
+     */
+    public function getGreen()
+    {
+        return $this->get('green');
+    }
+
+    /**
+     * Returns the configuration of aliyun components.
+     * @see set()
+     */
+    public function coreComponents()
+    {
+        return [
             'cloudPush' => ['class' => 'xutl\aliyun\CloudPush'],
             'cdn' => ['class' => 'xutl\aliyun\Cdn'],
             'domain' => ['class' => 'xutl\aliyun\Domain'],
@@ -54,69 +167,8 @@ class Aliyun extends Component
             'httpDns' => ['class' => 'xutl\aliyun\Dns'],
             'live' => ['class' => 'xutl\aliyun\Live'],
             'green' => ['class' => 'xutl\aliyun\Green'],
+            'dm' => ['class' => 'xutl\aliyun\Dm'],
+            'sms' => ['class' => 'xutl\aliyun\Sms'],
         ];
-    }
-
-    /**
-     * 设置
-     * @param array $services list of $services
-     */
-    public function setServices(array $services)
-    {
-        $this->_services = ArrayHelper::merge($this->_services, $services);
-    }
-
-    /**
-     * 获取接口列表
-     * @return BaseClient[]|BaseAcsClient list of services.
-     * @throws InvalidConfigException
-     */
-    public function getServices()
-    {
-        $services = [];
-        foreach ($this->_services as $id => $service) {
-            $services[$id] = $this->getService($id);
-        }
-        return $services;
-    }
-
-    /**
-     * 获取指定网关
-     * @param string $id service id.
-     * @return BaseClient|BaseAcsClient service instance.
-     * @throws InvalidConfigException
-     */
-    public function getService($id)
-    {
-        if (!array_key_exists($id, $this->_services)) {
-            throw new InvalidParamException("Unknown service '{$id}'.");
-        }
-        if (!is_object($this->_services[$id])) {
-            $this->_services[$id] = $this->createService($id, $this->_services[$id]);
-        }
-        return $this->_services[$id];
-    }
-
-    /**
-     * 检查指定网关是否存在
-     * @param string $id service id.
-     * @return boolean whether service exist.
-     */
-    public function hasService($id)
-    {
-        return array_key_exists($id, $this->_services);
-    }
-
-    /**
-     * 从配置创建网关实例
-     * @param string $id api service id.
-     * @param array $config service instance configuration.
-     * @return object|BaseClient|BaseAcsClient service instance.
-     * @throws InvalidConfigException
-     */
-    protected function createService($id, $config)
-    {
-        $config['id'] = $id;
-        return Yii::createObject($config);
     }
 }
