@@ -7,6 +7,8 @@
 
 namespace xutl\aliyun;
 
+use yii\base\InvalidConfigException;
+
 /**
  * Class Live
  *
@@ -126,5 +128,211 @@ class Live extends BaseClient
      */
     public $version = '2016-11-01';
 
+    /**
+     * @var string 推流域名
+     */
+    public $domain;
 
+    /**
+     * @var string 推流鉴权
+     */
+    public $pushKey;
+
+    /**
+     * @var string 媒体中心地址
+     */
+    public $pushDomain = 'video-center.alivecdn.com';
+
+    /**
+     * @var string 录像播放域名，通常是OSS地址
+     */
+    public $recordDomain;
+
+    /**
+     * @var string 录像播放鉴权
+     */
+    public $recordKey;
+
+    /**
+     * @var bool 是否使用安全连接
+     */
+    public $secureConnection = true;
+
+    /**
+     * @var int 推流签名有效期,默认有效期是一周
+     */
+    public $authTime = 604800;
+
+    /**
+     * @var int 签名过期时间
+     */
+    private $expirationTime;
+
+    /**
+     * @var string 播放地址
+     */
+    private $httpPlayUrl;
+
+    /**
+     * 初始化直播
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function init()
+    {
+        parent::init();
+        //初始化过期时间
+        $this->expirationTime = time() + $this->authTime;
+        //播放地址前半段
+        $this->httpPlayUrl = ($this->secureConnection ? 'https://' : 'http://') . $this->domain;
+        if (empty ($this->domain)) {
+            throw new InvalidConfigException ('The "domain" property must be set.');
+        }
+        if (empty ($this->recordDomain)) {
+            throw new InvalidConfigException ('The "recordDomain" property must be set.');
+        }
+    }
+
+    /**
+     * 获取推流地址
+     * @param string $appName 应用名称
+     * @return string
+     */
+    public function getPushPath($appName)
+    {
+        return "rtmp://{$this->pushDomain}/{$appName}/";
+    }
+
+    /**
+     * 获取串码流
+     * @param string $appName 应用名称
+     * @param string $streamName 直播流名称
+     * @return string
+     */
+    public function getPushArg($appName, $streamName)
+    {
+        return $streamName . $this->pushSignature($appName, $streamName);
+    }
+
+    /**
+     * 获取直播推流地址
+     * @param string $appName 应用名称
+     * @param string $streamName 直播流名称
+     * @return string
+     */
+    public function getPushUrl($appName, $streamName)
+    {
+        return $this->getPushPath($appName) . $this->getPushArg($appName, $streamName);
+    }
+
+    /**
+     * 获取阿里云播放地址
+     * @param string $appName 应用名称
+     * @param string $streamName 直播流名称
+     * @return array
+     */
+    public function getPlayUrls($appName, $streamName)
+    {
+        return [
+            'rtmp' => $this->getPlayUrlForRTMP($appName, $streamName),
+            'rtmp_sd' => $this->getPlayUrlForRTMP($appName, $streamName, 'sd'),
+            'rtmp_hd' => $this->getPlayUrlForRTMP($appName, $streamName, 'hd'),
+            'flv' => $this->getPlayUrlForFLV($appName, $streamName),
+            'flv_sd' => $this->getPlayUrlForFLV($appName, $streamName, 'sd'),
+            'flv_hd' => $this->getPlayUrlForFLV($appName, $streamName, 'hd'),
+            'hls' => $this->getPlayUrlForHls($appName, $streamName),
+        ];
+    }
+
+    /**
+     * 获取RTMP拉流地址
+     * @param string $appName 应用名称
+     * @param string $streamName 直播流名称
+     * @param string $clarity 转码模板名称
+     * @return string
+     */
+    public function getPlayUrlForRTMP($appName, $streamName, $clarity = null)
+    {
+        $uri = "/{$appName}/{$streamName}";
+        if (!is_null($clarity)) {
+            $uri .= '_' . $clarity;
+        }
+        return 'rtmp://' . $this->domain . $uri . $this->generateSignature($uri, $this->pushKey);
+    }
+
+    /**
+     * 获取FLV播放地址
+     * @param string $appName 应用名称
+     * @param string $streamName 直播流名称
+     * @param string $clarity 转码模板名称
+     * @return string
+     */
+    public function getPlayUrlForFLV($appName, $streamName, $clarity = null)
+    {
+        $uri = "/{$appName}/{$streamName}";
+        if (!is_null($clarity)) {
+            $uri .= '_' . $clarity;
+        }
+        $uri .= '.flv';
+        return $this->httpPlayUrl . $uri . $this->generateSignature($uri, $this->pushKey);
+    }
+
+    /**
+     * 获取M3U8播放地址
+     * @param string $appName 应用名称
+     * @param string $streamName 直播流名称
+     * @param string $clarity 转码模板名称
+     * @return string
+     */
+    public function getPlayUrlForHls($appName, $streamName, $clarity = null)
+    {
+        $uri = "/{$appName}/{$streamName}";
+        if (!is_null($clarity)) {
+            $uri .= '_' . $clarity;
+        }
+        $uri .= '.m3u8';
+        return $this->httpPlayUrl . $uri . $this->generateSignature($uri, $this->pushKey);
+    }
+
+    /**
+     * 获取录像播放地址
+     * @param string $uri
+     * @return string
+     */
+    public function getRecordUrl($uri)
+    {
+        $uri = '/' . rtrim($uri, '/');
+        return ($this->secureConnection ? 'https://' : 'http://') . $this->recordDomain . $uri. $this->generateSignature($uri, $this->recordKey);
+    }
+
+    /**
+     * 推流签名
+     * @param string $appName 应用名称
+     * @param string $streamName 直播流名称
+     * @return string
+     */
+    protected function pushSignature($appName, $streamName)
+    {
+        $uri = "/{$appName}/{$streamName}";
+        if ($this->pushKey) {
+            $authKey = "?vhost={$this->domain}&auth_key={$this->expirationTime}-0-0-" . md5("{$uri}-{$this->expirationTime}-0-0-{$this->pushKey}");
+        } else {
+            $authKey = "?vhost={$this->domain}";
+        }
+        return $authKey;
+    }
+
+    /**
+     * 生成 录像播放 签名
+     * @param string $uri
+     * @param string $key 签名密钥
+     * @return string
+     */
+    protected function generateSignature($uri, $key = null)
+    {
+        $authKey = '';
+        if ($key) {
+            $authKey = "?auth_key={$this->expirationTime}-0-0-" . md5("{$uri}-{$this->expirationTime}-0-0-{$key}");
+        }
+        return $authKey;
+    }
 }

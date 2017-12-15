@@ -42,6 +42,7 @@ namespace xutl\aliyun;
  * @method queryAliases(array $params) 查询别名
  * @method unbindAlias(array $params) 解绑别名
  *
+ * @see https://help.aliyun.com/document_detail/48038.html
  * @package xutl\aliyun
  */
 class CloudPush extends BaseClient

@@ -28,6 +28,11 @@ class Aliyun extends Component
     public $accessKey;
 
     /**
+     * @var array 服务配置
+     */
+    public $services = [];
+
+    /**
      * @inheritdoc
      */
     public function init()
