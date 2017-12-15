@@ -7,6 +7,7 @@
 
 namespace xutl\aliyun;
 
+use yii\di\Instance;
 use yii\httpclient\Client;
 use yii\base\InvalidConfigException;
 use yii\httpclient\RequestEvent;
@@ -61,19 +62,25 @@ abstract class BaseClient extends Client
     protected $dateTimeFormat = 'Y-m-d\TH:i:s\Z';
 
     /**
+     * @var string|Aliyun
+     */
+    private $aliyun = 'aliyun';
+
+    /**
      * @inheritdoc
      */
     public function init()
     {
         parent::init();
-        if (empty ($this->accessId)) {
-            throw new InvalidConfigException ('The "accessId" property must be set.');
-        }
-        if (empty ($this->accessKey)) {
-            throw new InvalidConfigException ('The "accessKey" property must be set.');
-        }
         if (empty ($this->version)) {
             throw new InvalidConfigException ('The "version" property must be set.');
+        }
+        $this->aliyun = Instance::ensure($this->aliyun, Aliyun::className());
+        if (empty ($this->accessId)) {
+            $this->accessId = $this->aliyun->accessId;
+        }
+        if (empty ($this->accessKey)) {
+            $this->accessKey = $this->aliyun->accessKey;
         }
         $this->responseConfig['format'] = Client::FORMAT_JSON;
         $this->on(Client::EVENT_BEFORE_SEND, [$this, 'RequestEvent']);
