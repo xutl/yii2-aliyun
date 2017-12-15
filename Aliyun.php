@@ -50,6 +50,10 @@ class Aliyun extends ServiceLocator
         }
     }
 
+    /**
+     * 预处理组件
+     * @param array $config
+     */
     public function preInit(&$config)
     {
         // merge core components with custom components
