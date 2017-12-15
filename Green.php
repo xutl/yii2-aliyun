@@ -13,44 +13,13 @@ use yii\httpclient\Client;
 use yii\httpclient\RequestEvent;
 
 /**
- * Class Green
+ * 内容安全API
+ *
+ * @see https://help.aliyun.com/document_detail/53412.html
  * @package xutl\aliyun
  */
-class Green extends Client
+class Green extends BaseAcsClient
 {
-    const SIGNATURE_METHOD_HMACSHA1 = 'HMAC-SHA1';
-    const SIGNATURE_METHOD_HMACSHA256 = 'HMAC-SHA256';
-
-    /**
-     * @var string 阿里云AccessKey ID
-     */
-    public $accessId;
-
-    /**
-     * @var string AccessKey
-     */
-    public $accessKey;
-
-    /**
-     * @var string
-     */
-    public $securityToken;
-
-    /**
-     * @var string
-     */
-    protected $signatureMethod = self::SIGNATURE_METHOD_HMACSHA1;
-
-    /**
-     * @var string
-     */
-    protected $signatureVersion = '1.0';
-
-    /**
-     * @var string
-     */
-    protected $dateTimeFormat = 'D, d M Y H:i:s \G\M\T';
-
     /**
      * @var string 网关地址
      */
@@ -180,76 +149,6 @@ class Green extends Client
         return $response->data;
     }
 
-    /**
-     * 请求事件
-     * @param RequestEvent $event
-     * @return void
-     */
-    public function RequestEvent(RequestEvent $event)
-    {
-        $params = $event->request->getData();
-        $content = Json::encode($params);
-        $headers["x-sdk-client"] = "yii2/2.0.0";
-        $headers['x-acs-version'] = $this->version;//接口版本
-        $headers['x-acs-signature-nonce'] = uniqid();//随机字符串，用来避免回放攻击
-        $headers['x-acs-signature-version'] = $this->signatureVersion;//签名版本，目前取值：1.0
-        $headers['x-acs-signature-method'] = $this->signatureMethod;//签名方法，目前只支持: HMAC-SHA1
-        $headers["x-acs-region-id"] = $this->regionId;
-        $headers['Date'] = gmdate($this->dateTimeFormat);//GMT日期格式，例如：Tue, 17 Jan 2017 10:16:36 GMT
-        $headers['Accept'] = 'application/json';
-        if ($content != null) {
-            $headers["Content-MD5"] = base64_encode(md5($content, true));
-        }
-        $headers['Content-Type'] = 'application/octet-stream;charset=utf-8';
 
-        $signString = strtoupper($event->request->getMethod()) . "\n";
-        if (isset($headers["Accept"])) {
-            $signString = $signString . $headers['Accept'];
-        }
-        $signString = $signString . "\n";
-        if (isset($headers["Content-MD5"])) {
-            $signString = $signString . $headers['Content-MD5'];
-        }
-        $signString = $signString . "\n";
-        if (isset($headers["Content-Type"])) {
-            $signString = $signString . $headers['Content-Type'];
-        }
-        $signString = $signString . "\n";
-        if (isset($headers["Date"])) {
-            $signString = $signString . $headers['Date'];
-        }
-        $signString = $signString . "\n" . $this->buildCanonicalHeaders($headers);
-        $signString .= $event->request->getUrl();
-        //签名
-        if ($this->signatureMethod == self::SIGNATURE_METHOD_HMACSHA256) {
-            $headers['Authorization'] = 'acs ' . $this->accessId . ':' . base64_encode(hash_hmac('sha256', $signString, $this->accessKey, true));
-        } elseif ($this->signatureMethod == self::SIGNATURE_METHOD_HMACSHA1) {
-            $headers['Authorization'] = 'acs ' . $this->accessId . ':' . base64_encode(hash_hmac('sha1', $signString, $this->accessKey, true));
-        }
-        $event->request->setContent($content);
-        $event->request->setHeaders($headers);
-    }
-
-    /**
-     * 构建规范 Headers
-     * @param array $headers
-     * @return string
-     */
-    private function buildCanonicalHeaders(array $headers)
-    {
-        $sortMap = [];
-        foreach ($headers as $headerKey => $headerValue) {
-            $key = strtolower($headerKey);
-            if (strpos($key, 'x-acs-') === 0) {
-                $sortMap[$key] = $headerValue;
-            }
-        }
-        ksort($sortMap);
-        $headerString = '';
-        foreach ($sortMap as $sortMapKey => $sortMapValue) {
-            $headerString = $headerString . $sortMapKey . ':' . $sortMapValue . "\n";
-        }
-        return $headerString;
-    }
 
 }

@@ -15,7 +15,7 @@ use yii\httpclient\RequestEvent;
  * Class BaseClient
  * @package xutl\aliyun
  */
-class BaseClient extends Client
+abstract class BaseClient extends Client
 {
     const SIGNATURE_METHOD_HMACSHA1 = 'HMAC-SHA1';
     const SIGNATURE_METHOD_HMACSHA256 = 'HMAC-SHA256';
