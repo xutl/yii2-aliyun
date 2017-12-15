@@ -1,5 +1,6 @@
 # Aliyun Extension for Yii 2
 
+适用于 Yii2 的 Aliyun SDK。使用了DI实现的，可自行继承扩展。
 
 [![Latest Stable Version](https://poser.pugx.org/xutl/yii2-aliyun/v/stable.png)](https://packagist.org/packages/xutl/yii2-aliyun)
 [![Total Downloads](https://poser.pugx.org/xutl/yii2-aliyun/downloads.png)](https://packagist.org/packages/xutl/yii2-aliyun)
@@ -36,9 +37,14 @@ Add following lines to your main configuration file:
 
 ```php
 'components' => [
-    'sms' => [
-        'class' => 'xutl\aliyun\Sms',   
-        //etc
+    'aliyun' => [
+        'class' => 'xutl\aliyun\Sms',  
+        'accessId' => '123456',
+        'accessKey' => '654321', 
+        'components' => [
+             //各子组件配置，如果无需配置不写即可。也可动态注入配置。
+            //etc
+        ]
     ],
 ],
 ```
