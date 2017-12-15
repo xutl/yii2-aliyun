@@ -158,15 +158,6 @@ class Aliyun extends ServiceLocator
     }
 
     /**
-     * 获取函数计算
-     * @return object|Fc
-     * @throws InvalidConfigException
-     */
-    public function getFc(){
-        return $this->get('fc');
-    }
-
-    /**
      * Returns the configuration of aliyun components.
      * @see set()
      */
@@ -182,7 +173,6 @@ class Aliyun extends ServiceLocator
             'green' => ['class' => 'xutl\aliyun\Green'],
             'dm' => ['class' => 'xutl\aliyun\Dm'],
             'sms' => ['class' => 'xutl\aliyun\Sms'],
-            'fc' => ['class' => 'xutl\aliyun\Fc'],
         ];
     }
 }
