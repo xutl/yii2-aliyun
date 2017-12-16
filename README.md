@@ -4,9 +4,6 @@
 
 [![Latest Stable Version](https://poser.pugx.org/xutl/yii2-aliyun/v/stable.png)](https://packagist.org/packages/xutl/yii2-aliyun)
 [![Total Downloads](https://poser.pugx.org/xutl/yii2-aliyun/downloads.png)](https://packagist.org/packages/xutl/yii2-aliyun)
-[![Reference Status](https://www.versioneye.com/php/xutl:yii2-aliyun/reference_badge.svg)](https://www.versioneye.com/php/xutl:yii2-aliyun/references)
-[![Build Status](https://img.shields.io/travis/xutl/yii2-aliyun.svg)](http://travis-ci.org/xutl/yii2-aliyun)
-[![Dependency Status](https://www.versioneye.com/php/xutl:yii2-aliyun/dev-master/badge.png)](https://www.versioneye.com/php/xutl:yii2-aliyun/dev-master)
 [![License](https://poser.pugx.org/xutl/yii2-aliyun/license.svg)](https://packagist.org/packages/xutl/yii2-aliyun)
 
 
@@ -38,12 +35,14 @@ Add following lines to your main configuration file:
 ```php
 'components' => [
     'aliyun' => [
-        'class' => 'xutl\aliyun\Sms',  
+        'class' => 'xutl\aliyun\Aliyun', //这个类其实就是 继承了  `\yii\di\ServiceLocator` 类。 
         'accessId' => '123456',
         'accessKey' => '654321', 
         'components' => [
              //各子组件配置，如果无需配置不写即可。也可动态注入配置。
-            //etc
+             //如果子组件使用独立的 `accessId` 和 `accessKey` 那么在子组件中单独配置即可，如果没有配置默认使用父  `accessId` 和 `accessKey` 。
+             //如果你自己扩展了其他的子组件，这里定义下新的组件配置即可，配置方式，数组接口和 YII 原生组件一致！
+            //etc
         ]
     ],
 ],
@@ -58,7 +57,9 @@ $aliyun = Yii::$app->aliyun;
 
 $cloudPush = $aliyun->getCloudPush();
 
-// 查看文档 https://help.aliyun.com/knowledge_detail/48085.html 请求参数中的 `Action` 省略，其他的照着协商就发包了。
+// 查看文档 https://help.aliyun.com/knowledge_detail/48085.html 请求参数中的 `Action` 省略，其他的照着写上就发包了。
+// 实现原理是 首先 Aliyun 类使用 DI 技术 将子组件注册进来，在第一次使用时，会自动初始化，接着使用PHP的魔术方法请求对应的接口，方法名称即 `Action` 参数首字母小写即可。
+
 $res = $cloud->pushMessageToAndroid([
     'AppKey'=>'123456',
     'Target' => 'ALL',
