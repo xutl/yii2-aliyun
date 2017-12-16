@@ -27,6 +27,11 @@ class Aliyun extends ServiceLocator
     public $accessKey;
 
     /**
+     * @var array aliyun parameters (name => value).
+     */
+    public $params = [];
+
+    /**
      * Aliyun constructor.
      * @param array $config
      */
