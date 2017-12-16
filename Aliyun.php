@@ -195,6 +195,16 @@ class Aliyun extends ServiceLocator
     }
 
     /**
+     * 获取SLB实例
+     * @return object|Slb
+     * @throws InvalidConfigException
+     */
+    public function getSlb()
+    {
+        return $this->get('slb');
+    }
+
+    /**
      * 获取SMS实例
      * @return object|Sms
      * @throws InvalidConfigException
@@ -243,6 +253,7 @@ class Aliyun extends ServiceLocator
             'jaq' => ['class' => 'xutl\aliyun\Jaq'],
             'live' => ['class' => 'xutl\aliyun\Live'],
             'mts' => ['class' => 'xutl\aliyun\Mts'],
+            'slb' => ['class' => 'xutl\aliyun\Slb'],
             'sms' => ['class' => 'xutl\aliyun\Sms'],
             'vod' => ['class' => 'xutl\aliyun\Vod'],
             'vpc' => ['class' => 'xutl\aliyun\Vpc'],
