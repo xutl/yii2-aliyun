@@ -6,6 +6,24 @@
 [![Total Downloads](https://poser.pugx.org/xutl/yii2-aliyun/downloads.png)](https://packagist.org/packages/xutl/yii2-aliyun)
 [![License](https://poser.pugx.org/xutl/yii2-aliyun/license.svg)](https://packagist.org/packages/xutl/yii2-aliyun)
 
+支持的接口和服务：
+
+1. CDN
+2. 实人认证
+3. 云相册
+4. 云推送
+5. 邮件推送
+6. DNS
+7. 域名
+8. 内容安全
+9. HTTPDNS
+10. 移动安全
+11. 直播
+12. 媒体转码
+13. 负载均衡
+14. 短信
+15. 视频点播
+16. VPC
 
 Installation
 ------------
