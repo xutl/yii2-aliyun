@@ -72,16 +72,6 @@ class Aliyun extends ServiceLocator
     }
 
     /**
-     * 获取云推送实例
-     * @return object|CloudPush
-     * @throws InvalidConfigException
-     */
-    public function getCloudPush()
-    {
-        return $this->get('cloudPush');
-    }
-
-    /**
      * 获取CDN实例
      * @return object|HttpDns
      * @throws InvalidConfigException
@@ -92,13 +82,43 @@ class Aliyun extends ServiceLocator
     }
 
     /**
-     * 获取Domain实例
-     * @return object|Domain
+     * 获取实人认证实例
+     * @return object|CloudAuth
      * @throws InvalidConfigException
      */
-    public function getDomain()
+    public function getCloudAuth()
     {
-        return $this->get('domain');
+        return $this->get('cloudAuth');
+    }
+
+    /**
+     * 获取云相册实例
+     * @return object|CloudPhoto
+     * @throws InvalidConfigException
+     */
+    public function getCloudPhoto()
+    {
+        return $this->get('cloudPhoto');
+    }
+
+    /**
+     * 获取云推送实例
+     * @return object|CloudPush
+     * @throws InvalidConfigException
+     */
+    public function getCloudPush()
+    {
+        return $this->get('cloudPush');
+    }
+
+    /**
+     * 获取邮件推送
+     * @return object|Dm
+     * @throws InvalidConfigException
+     */
+    public function getDm()
+    {
+        return $this->get('dm');
     }
 
     /**
@@ -112,6 +132,26 @@ class Aliyun extends ServiceLocator
     }
 
     /**
+     * 获取Domain实例
+     * @return object|Domain
+     * @throws InvalidConfigException
+     */
+    public function getDomain()
+    {
+        return $this->get('domain');
+    }
+
+    /**
+     * 获取 内容安全实例
+     * @return object|Green
+     * @throws InvalidConfigException
+     */
+    public function getGreen()
+    {
+        return $this->get('green');
+    }
+
+    /**
      * 获取HttpDns实例
      * @return object|HttpDns
      * @throws InvalidConfigException
@@ -119,6 +159,17 @@ class Aliyun extends ServiceLocator
     public function getHttpDns()
     {
         return $this->get('httpDns');
+    }
+
+    /**
+     * 获取移动安全实例
+     * @return object|Jaq
+     * @throws InvalidConfigException
+     * @return boolean whether service exist.
+     */
+    public function getJaq()
+    {
+        return $this->get('jaq');
     }
 
     /**
@@ -133,13 +184,14 @@ class Aliyun extends ServiceLocator
     }
 
     /**
-     * 获取邮件推送
-     * @return object|Dm
+     * 获取 MTS 实例
+     * @return object|Mts
      * @throws InvalidConfigException
+     * @return boolean whether service exist.
      */
-    public function getDm()
+    public function getMts()
     {
-        return $this->get('dm');
+        return $this->get('mts');
     }
 
     /**
@@ -153,13 +205,23 @@ class Aliyun extends ServiceLocator
     }
 
     /**
-     * 获取 内容安全实例
-     * @return object|Green
+     * 获取Vod实例
+     * @return object|Vod
      * @throws InvalidConfigException
      */
-    public function getGreen()
+    public function getVod()
     {
-        return $this->get('green');
+        return $this->get('vod');
+    }
+
+    /**
+     * 获取Vpc实例
+     * @return object|Vpc
+     * @throws InvalidConfigException
+     */
+    public function getVpc()
+    {
+        return $this->get('vpc');
     }
 
     /**
@@ -169,15 +231,21 @@ class Aliyun extends ServiceLocator
     public function coreComponents()
     {
         return [
-            'cloudPush' => ['class' => 'xutl\aliyun\CloudPush'],
             'cdn' => ['class' => 'xutl\aliyun\Cdn'],
-            'domain' => ['class' => 'xutl\aliyun\Domain'],
-            'dns' => ['class' => 'xutl\aliyun\Dns'],
-            'httpDns' => ['class' => 'xutl\aliyun\Dns'],
-            'live' => ['class' => 'xutl\aliyun\Live'],
-            'green' => ['class' => 'xutl\aliyun\Green'],
+            'cloudAuth' => ['class' => 'xutl\aliyun\CloudAuth'],
+            'cloudPhoto' => ['class' => 'xutl\aliyun\CloudPhoto'],
+            'cloudPush' => ['class' => 'xutl\aliyun\CloudPush'],
             'dm' => ['class' => 'xutl\aliyun\Dm'],
+            'dns' => ['class' => 'xutl\aliyun\Dns'],
+            'domain' => ['class' => 'xutl\aliyun\Domain'],
+            'green' => ['class' => 'xutl\aliyun\Green'],
+            'httpDns' => ['class' => 'xutl\aliyun\Dns'],
+            'jaq' => ['class' => 'xutl\aliyun\Jaq'],
+            'live' => ['class' => 'xutl\aliyun\Live'],
+            'mts' => ['class' => 'xutl\aliyun\Mts'],
             'sms' => ['class' => 'xutl\aliyun\Sms'],
+            'vod' => ['class' => 'xutl\aliyun\Vod'],
+            'vpc' => ['class' => 'xutl\aliyun\Vpc'],
         ];
     }
 }
