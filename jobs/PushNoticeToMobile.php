@@ -20,11 +20,6 @@ use yii\queue\RetryableJobInterface;
 class PushNoticeToMobile extends BaseObject implements RetryableJobInterface
 {
     /**
-     * @var string AppKey信息
-     */
-    public $appKey;
-
-    /**
      * @var string 推送目标
      */
     public $target = 'ALL';
