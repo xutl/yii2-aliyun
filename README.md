@@ -74,6 +74,12 @@ $res = $cloud->pushMessageToAndroid([
 var_dump($res->isOk);
 print_r($res->data);
 
+//或者使用队列处理
+
+Yii::$app->queue->push(new \xutl\aliyun\jobs\PushNoticeToMobile([
+    //etc
+]));
+
 //其他接口类似调用方式
 
 //如果扩展 暂不支持的接口，直接继承 `\xutl\aliyun\BaseClient` 和 `\xutl\aliyun\BaseAcsClient` 基类即可自带 认证。你只需扩展方法即可。 
