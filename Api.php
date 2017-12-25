@@ -61,54 +61,59 @@ class Api extends Client
      */
     public function RequestEvent(RequestEvent $event)
     {
-        $headers = $event->request->getHeaders();
-        $headers->add('X-Ca-Key', $this->appKey);
-        $headers->add('X-Ca-Timestamp', strval(time() * 1000));
-        $headers->add('X-Ca-Nonce', uniqid());
-        $headers->add('X-Ca-Version', 1);
-        if (YII_ENV_DEV || YII_ENV_TEST) {
-            $headers->add('X-Ca-Stage', 'TEST');
-        } else {
-            $headers->add('X-Ca-Stage', 'RELEASE');
-        }
-        $headers->add('Accept', 'application/json');
+        $headers = [];
+        $headers['Content-Type'] = 'application/json; charset=UTF-8';
+        $headers['Accept'] = 'application/json';
         $headers['Date'] = gmdate($this->dateTimeFormat);
+
 
         $method = strtoupper($event->request->getMethod());
         if ($method == 'POST') {
             $content = $event->request->getData();
             if ($content != null) {
-                $headers->add("Content-MD5", base64_encode(md5($content, true)));
+                $headers['Content-MD5'] = base64_encode(md5($content, true));
             }
         }
         $signString = $method . "\n";
-        if ($headers->has('Accept')) {
-            $signString = $signString . $headers->get('Accept');
+        if (isset($headers['Accept'])) {
+            $signString = $signString . $headers['Accept'];
         }
         $signString = $signString . "\n";
-        if ($headers->has('Content-MD5')) {
-            $signString = $signString . $headers->get('Content-MD5');
+        if (isset($headers['Content-MD5'])) {
+            $signString = $signString . $headers['Content-MD5'];
         }
         $signString = $signString . "\n";
-        if ($headers->has('Content-Type')) {
-            $signString = $signString . $headers->get('Content-Type');
+        if (isset($headers['Content-Type'])) {
+            $signString = $signString . $headers['Content-Type'];
         }
         $signString = $signString . "\n";
-        if ($headers->has('Date')) {
-            $signString = $signString . $headers->get('Date');
+        if (isset($headers['Date'])) {
+            $signString = $signString . $headers['Date'];
         }
-        $signString = $signString . "\n" . $this->buildCanonicalHeaders($headers->toArray());
+
+        $signString = $signString . "\n" . $this->buildCanonicalHeaders($headers);
         $signString .= '/' . ltrim($this->composeUrl($event->request->getUrl(), $event->request->getData()), '/');
 
-        echo $signString;
         if ($this->signatureMethod == self::SIGNATURE_METHOD_HMACSHA256) {
-            $sign = base64_encode(hash_hmac('sha256', $signString, $this->appSecret, true));
+            $headers['X-Ca-Signature'] = base64_encode(hash_hmac('sha256', $signString, $this->appSecret, true));
         } elseif ($this->signatureMethod == self::SIGNATURE_METHOD_HMACSHA1) {
-            $sign = base64_encode(hash_hmac('sha1', $signString, $this->appSecret, true));
+            $headers['X-Ca-Signature'] = base64_encode(hash_hmac('sha1', $signString, $this->appSecret, true));
         } else {
             throw new Exception('Unsupported signature method.');
         }
-        $headers->add('X-Ca-Signature', $sign);
+
+        $headers['X-Ca-Key'] = $this->appKey;
+
+        $headers['X-Ca-Timestamp'] = strval(time() * 1000);
+        $headers['X-Ca-Nonce'] =  uniqid();
+        $headers['X-Ca-Version'] = 1;
+
+        if (YII_ENV_DEV || YII_ENV_TEST) {
+            $headers['X-Ca-Stage'] = 'TEST';
+        } else {
+            $headers['X-Ca-Stage'] = 'RELEASE';
+        }
+
         $event->request->setHeaders($headers);
     }
 
@@ -136,12 +141,12 @@ class Api extends Client
      * @param array $headers
      * @return string
      */
-    private function buildCanonicalHeaders(array $headers)
+    private function buildCanonicalHeaders($headers)
     {
         $sortMap = [];
         foreach ($headers as $headerKey => $headerValue) {
             $key = strtolower($headerKey);
-            if (strpos($key, 'X-Ca-') === 0) {
+            if (strpos($key, 'x-ca-') === 0) {
                 $sortMap[$key] = $headerValue;
             }
         }
