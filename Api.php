@@ -32,6 +32,11 @@ class Api extends Client
     protected $signatureMethod = self::SIGNATURE_METHOD_HMACSHA1;
 
     /**
+     * @var string
+     */
+    protected $dateTimeFormat = 'D, d M Y H:i:s \G\M\T';
+
+    /**
      * @inheritdoc
      */
     public function init()
@@ -61,10 +66,18 @@ class Api extends Client
         $headers->add('X-Ca-Timestamp', strval(time() * 1000));
         $headers->add('X-Ca-Nonce', uniqid());
         $headers->add('X-Ca-Version', 1);
-        $headers->add('X-Ca-Stage','RELEASE');
+        $headers->add('X-Ca-Stage', 'RELEASE');
         $headers->add('Accept', 'application/json');
+        $headers['Date'] = gmdate($this->dateTimeFormat);
 
-        $signString = strtoupper($event->request->getMethod()) . "\n";
+        $method = strtoupper($event->request->getMethod());
+        if ($method == 'POST') {
+            $content = $event->request->getData();
+            if ($content != null) {
+                $headers->add("Content-MD5", base64_encode(md5($content, true)));
+            }
+        }
+        $signString = $method . "\n";
         if ($headers->has('Accept')) {
             $signString = $signString . $headers->get('Accept');
         }
@@ -81,8 +94,9 @@ class Api extends Client
             $signString = $signString . $headers->get('Date');
         }
         $signString = $signString . "\n" . $this->buildCanonicalHeaders($headers->toArray());
-        $signString .= $this->composeUrl($event->request->getUrl(), $event->request->getData());
+        $signString .= '/'.ltrim($this->composeUrl($event->request->getUrl(), $event->request->getData()), '/');
 
+        echo $signString;
         if ($this->signatureMethod == self::SIGNATURE_METHOD_HMACSHA256) {
             $sign = base64_encode(hash_hmac('sha256', $signString, $this->appSecret, true));
         } elseif ($this->signatureMethod == self::SIGNATURE_METHOD_HMACSHA1) {
