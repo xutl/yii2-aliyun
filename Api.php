@@ -66,7 +66,11 @@ class Api extends Client
         $headers->add('X-Ca-Timestamp', strval(time() * 1000));
         $headers->add('X-Ca-Nonce', uniqid());
         $headers->add('X-Ca-Version', 1);
-        $headers->add('X-Ca-Stage', 'RELEASE');
+        if (YII_ENV_DEV || YII_ENV_TEST) {
+            $headers->add('X-Ca-Stage', 'TEST');
+        } else {
+            $headers->add('X-Ca-Stage', 'RELEASE');
+        }
         $headers->add('Accept', 'application/json');
         $headers['Date'] = gmdate($this->dateTimeFormat);
 
@@ -94,7 +98,7 @@ class Api extends Client
             $signString = $signString . $headers->get('Date');
         }
         $signString = $signString . "\n" . $this->buildCanonicalHeaders($headers->toArray());
-        $signString .= '/'.ltrim($this->composeUrl($event->request->getUrl(), $event->request->getData()), '/');
+        $signString .= '/' . ltrim($this->composeUrl($event->request->getUrl(), $event->request->getData()), '/');
 
         echo $signString;
         if ($this->signatureMethod == self::SIGNATURE_METHOD_HMACSHA256) {
