@@ -7,8 +7,25 @@
 
 namespace xutl\aliyun;
 
+
 use yii\di\ServiceLocator;
 use yii\base\InvalidConfigException;
+use xutl\aliyun\components\CloudAuth;
+use xutl\aliyun\components\CloudPhoto;
+use xutl\aliyun\components\CloudPush;
+use xutl\aliyun\components\Dm;
+use xutl\aliyun\components\Dns;
+use xutl\aliyun\components\Domain;
+use xutl\aliyun\components\Green;
+use xutl\aliyun\components\HttpDns;
+use xutl\aliyun\components\Jaq;
+use xutl\aliyun\components\Live;
+use xutl\aliyun\components\Mts;
+use xutl\aliyun\components\Scdn;
+use xutl\aliyun\components\Slb;
+use xutl\aliyun\components\Sms;
+use xutl\aliyun\components\Vod;
+use xutl\aliyun\components\Vpc;
 
 /**
  * Class Aliyun
@@ -196,6 +213,16 @@ class Aliyun extends ServiceLocator
 
     /**
      * 获取SLB实例
+     * @return object|Scdn
+     * @throws InvalidConfigException
+     */
+    public function getScdn()
+    {
+        return $this->get('scdn');
+    }
+
+    /**
+     * 获取SLB实例
      * @return object|Slb
      * @throws InvalidConfigException
      */
@@ -241,22 +268,23 @@ class Aliyun extends ServiceLocator
     public function coreComponents()
     {
         return [
-            'cdn' => ['class' => 'xutl\aliyun\Cdn'],
-            'cloudAuth' => ['class' => 'xutl\aliyun\CloudAuth'],
-            'cloudPhoto' => ['class' => 'xutl\aliyun\CloudPhoto'],
-            'cloudPush' => ['class' => 'xutl\aliyun\CloudPush'],
-            'dm' => ['class' => 'xutl\aliyun\Dm'],
-            'dns' => ['class' => 'xutl\aliyun\Dns'],
-            'domain' => ['class' => 'xutl\aliyun\Domain'],
-            'green' => ['class' => 'xutl\aliyun\Green'],
-            'httpDns' => ['class' => 'xutl\aliyun\Dns'],
-            'jaq' => ['class' => 'xutl\aliyun\Jaq'],
-            'live' => ['class' => 'xutl\aliyun\Live'],
-            'mts' => ['class' => 'xutl\aliyun\Mts'],
-            'slb' => ['class' => 'xutl\aliyun\Slb'],
-            'sms' => ['class' => 'xutl\aliyun\Sms'],
-            'vod' => ['class' => 'xutl\aliyun\Vod'],
-            'vpc' => ['class' => 'xutl\aliyun\Vpc'],
+            'cdn' => ['class' => 'xutl\aliyun\components\Cdn'],
+            'cloudAuth' => ['class' => 'xutl\aliyun\components\CloudAuth'],
+            'cloudPhoto' => ['class' => 'xutl\aliyun\components\CloudPhoto'],
+            'cloudPush' => ['class' => 'xutl\aliyun\components\CloudPush'],
+            'dm' => ['class' => 'xutl\aliyun\components\Dm'],
+            'dns' => ['class' => 'xutl\aliyun\components\Dns'],
+            'domain' => ['class' => 'xutl\aliyun\components\Domain'],
+            'green' => ['class' => 'xutl\aliyun\components\Green'],
+            'httpDns' => ['class' => 'xutl\aliyun\components\Dns'],
+            'jaq' => ['class' => 'xutl\aliyun\components\Jaq'],
+            'live' => ['class' => 'xutl\aliyun\components\Live'],
+            'mts' => ['class' => 'xutl\aliyun\components\Mts'],
+            'slb' => ['class' => 'xutl\aliyun\components\Slb'],
+            'scdn' => ['class' => 'xutl\aliyun\components\Scdn'],
+            'sms' => ['class' => 'xutl\aliyun\components\Sms'],
+            'vod' => ['class' => 'xutl\aliyun\components\Vod'],
+            'vpc' => ['class' => 'xutl\aliyun\components\Vpc'],
         ];
     }
 }

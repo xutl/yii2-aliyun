@@ -5,7 +5,9 @@
  * @license http://www.tintsoft.com/license/
  */
 
-namespace xutl\aliyun;
+namespace xutl\aliyun\components;
+
+use xutl\aliyun\BaseClient;
 
 /**
  * Class Domain
@@ -15,7 +17,7 @@ namespace xutl\aliyun;
  *
  * 订单服务接口
  * @method queryOrder(array $params) 查询订单
- * @method createOrder(array $params) CreateOrder
+ * @method createOrder(array $params) 创建订单
  *
  * 信息模板接口
  * @method saveContactTemplate(array $params) 保存信息模板

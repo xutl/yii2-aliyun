@@ -5,8 +5,9 @@
  * @license http://www.tintsoft.com/license/
  */
 
-namespace xutl\aliyun;
+namespace xutl\aliyun\components;
 
+use xutl\aliyun\BaseClient;
 use yii\base\InvalidConfigException;
 
 /**
