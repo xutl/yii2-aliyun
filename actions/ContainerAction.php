@@ -11,6 +11,7 @@ use Yii;
 use yii\base\Action;
 use yii\helpers\Json;
 use yii\base\InvalidConfigException;
+use yii\web\UnauthorizedHttpException;
 
 /**
  * 阿里云容器镜像webhook回调
@@ -23,6 +24,8 @@ class ContainerAction extends Action
      * @var callable success callback with signature: `function($params)`
      */
     public $callback;
+
+    public $token;
 
     /**
      * 初始化
@@ -38,9 +41,15 @@ class ContainerAction extends Action
 
     /**
      * 处理直播通知回调
+     * @param string $token
+     * @return mixed
+     * @throws UnauthorizedHttpException
      */
-    public function run()
+    public function run($token)
     {
+        if ($token != $this->token) {
+            throw new UnauthorizedHttpException();
+        }
         $params = Yii::$app->request->post();
         Yii::info(Json::encode($params), __METHOD__);
         return call_user_func($this->callback, $params);
