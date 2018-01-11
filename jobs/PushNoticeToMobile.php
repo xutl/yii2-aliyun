@@ -14,7 +14,7 @@ use yii\base\BaseObject;
 use yii\queue\RetryableJobInterface;
 
 /**
- * Class PushNoticeToMobile
+ * 推送通知到移动设备
  * @package sixiang\group\jobs
  */
 class PushNoticeToMobile extends BaseObject implements RetryableJobInterface

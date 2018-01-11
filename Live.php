@@ -39,6 +39,11 @@ use yii\base\InvalidConfigException;
  * @method deleteLiveStreamTranscode(array $params) 删除转码配置
  * @method describeLiveStreamTranscodeInfo(array $params) 查询转码配置信息
  *
+ * 直播转点播
+ * @method AddLiveRecordVodConfig(array $params) 添加直转点设置
+ * @method DeleteLiveRecordVodConfig(array $params) 删除直转点设置
+ * @method DescribeLiveRecordVodConfigs(array $params) 查询直转点配置
+ *
  * 直播连麦
  * @method addLiveMixConfig(array $params) 添加连麦配置
  * @method describeLiveMixConfig(array $params) 查询连麦配置
