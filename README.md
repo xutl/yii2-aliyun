@@ -103,8 +103,12 @@ Yii::$app->queue->push(new \xutl\aliyun\jobs\PushNoticeToMobile([
 //如果扩展 暂不支持的接口，直接继承 `\xutl\aliyun\BaseClient` 和 `\xutl\aliyun\BaseAcsClient` 基类即可自带 认证。你只需扩展方法即可。 
 // 然后使用YII 自带的组件机制，参见上面的安装配置，把你自定义的接口注入进来即可。
 ```
+## 说明
+
+如果你对这个接口感兴趣，可以直接提交PR来合并更新。工作日工作时间，基本能实时响应合并。
 
 ## License
 
 This is released under the MIT License. See the bundled [LICENSE.md](LICENSE.md)
 for details.
+
