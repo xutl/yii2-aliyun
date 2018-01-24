@@ -28,7 +28,7 @@ class ContainerAction extends Action
     /**
      * @var string 签名密钥
      */
-    public $token;
+    public $token = '';
 
     /**
      * 初始化
@@ -48,7 +48,7 @@ class ContainerAction extends Action
      * @return mixed
      * @throws UnauthorizedHttpException
      */
-    public function run($token)
+    public function run($token = '')
     {
         if ($token != $this->token) {
             throw new UnauthorizedHttpException();

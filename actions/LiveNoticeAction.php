@@ -9,8 +9,9 @@ namespace xutl\aliyun\actions;
 
 use Yii;
 use yii\base\Action;
-use yii\base\InvalidConfigException;
 use yii\helpers\Json;
+use yii\base\InvalidConfigException;
+use yii\web\UnauthorizedHttpException;
 
 /**
  * Class LiveNoticeAction
@@ -23,6 +24,10 @@ class LiveNoticeAction extends Action
      */
     public $callback;
 
+    /**
+     * @var string 签名密钥
+     */
+    public $token = '';
 
     /**
      * 初始化
@@ -38,9 +43,15 @@ class LiveNoticeAction extends Action
 
     /**
      * 处理直播通知回调
+     * @param string $token
+     * @return mixed
+     * @throws UnauthorizedHttpException
      */
-    public function run()
+    public function run($token = null)
     {
+        if ($token != $this->token) {
+            throw new UnauthorizedHttpException();
+        }
         $params = Yii::$app->request->get();
         Yii::info(Json::encode($params), __METHOD__);
         return call_user_func($this->callback, $params);

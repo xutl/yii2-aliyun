@@ -9,8 +9,9 @@ namespace xutl\aliyun\actions;
 
 use Yii;
 use yii\base\Action;
-use yii\base\InvalidConfigException;
 use yii\helpers\Json;
+use yii\base\InvalidConfigException;
+use yii\web\UnauthorizedHttpException;
 
 /**
  * 直播录像回调
@@ -22,6 +23,11 @@ class LiveRecordAction extends Action
      * @var callable success callback with signature: `function($params)`
      */
     public $callback;
+
+    /**
+     * @var string 签名密钥
+     */
+    public $token = '';
 
     /**
      * 初始化
@@ -37,9 +43,15 @@ class LiveRecordAction extends Action
 
     /**
      * 处理直播录像回调
+     * @param string $token
+     * @return mixed
+     * @throws UnauthorizedHttpException
      */
-    public function run()
+    public function run($token = '')
     {
+        if ($token != $this->token) {
+            throw new UnauthorizedHttpException();
+        }
         $params = Yii::$app->request->post();
         Yii::info(Json::encode($params), __METHOD__);
         return call_user_func($this->callback, $params);
