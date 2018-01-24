@@ -9,16 +9,14 @@ namespace xutl\aliyun\actions;
 
 use Yii;
 use yii\base\Action;
-use yii\helpers\Json;
 use yii\base\InvalidConfigException;
 use yii\web\UnauthorizedHttpException;
 
 /**
- * 阿里云容器镜像Webhook回调
- * 需要Request 组件支持解析POST JSON
+ * Class GitHookAction
  * @package xutl\aliyun\actions
  */
-class ContainerAction extends Action
+class GitHookAction extends Action
 {
     /**
      * @var callable success callback with signature: `function($params)`
@@ -43,7 +41,7 @@ class ContainerAction extends Action
     }
 
     /**
-     * 处理直播通知回调
+     * 处理Git通知回调
      * @param string $token
      * @return mixed
      * @throws UnauthorizedHttpException
@@ -53,8 +51,8 @@ class ContainerAction extends Action
         if ($token != $this->token) {
             throw new UnauthorizedHttpException();
         }
-        $params = Yii::$app->request->post();
-        Yii::info(Json::encode($params), __METHOD__);
+        $params = Yii::$app->request->getRawBody();
+        Yii::info($params, __METHOD__);
         return call_user_func($this->callback, $params);
     }
 }
