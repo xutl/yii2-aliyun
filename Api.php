@@ -8,7 +8,6 @@
 namespace xutl\aliyun;
 
 use yii\base\Exception;
-use yii\helpers\Url;
 use yii\httpclient\Client;
 use yii\httpclient\RequestEvent;
 use yii\base\InvalidConfigException;
@@ -38,6 +37,7 @@ class Api extends Client
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
      */
     public function init()
     {

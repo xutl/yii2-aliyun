@@ -60,6 +60,7 @@ class Aliyun extends ServiceLocator
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
      */
     public function init()
     {

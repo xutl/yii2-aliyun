@@ -68,6 +68,7 @@ abstract class BaseClient extends Client
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
      */
     public function init()
     {
@@ -75,7 +76,7 @@ abstract class BaseClient extends Client
         if (empty ($this->version)) {
             throw new InvalidConfigException ('The "version" property must be set.');
         }
-        $this->aliyun = Instance::ensure($this->aliyun, Aliyun::className());
+        $this->aliyun = Instance::ensure($this->aliyun, Aliyun::class);
         if (empty ($this->accessId)) {
             $this->accessId = $this->aliyun->accessId;
         }

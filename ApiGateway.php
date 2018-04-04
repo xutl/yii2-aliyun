@@ -9,6 +9,7 @@ namespace xutl\aliyun;
 
 use yii\base\InvalidConfigException;
 use yii\httpclient\Client;
+use yii\httpclient\Exception;
 use yii\httpclient\RequestEvent;
 
 /**
@@ -45,6 +46,7 @@ class ApiGateway extends Client
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
      */
     public function init()
     {
@@ -78,7 +80,7 @@ class ApiGateway extends Client
      * @param array|string $data
      * @param array $headers
      * @param array $options
-     * @return Response response data.
+     * @return \yii\httpclient\Response response data.
      * @throws Exception
      */
     public function sendRequest($method, $url, $data, $headers, $options)
